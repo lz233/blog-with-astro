@@ -1,0 +1,64 @@
+---
+import '~/styles/index.css'
+// https://sivan.github.io/heti
+import '~/styles/heti.min.css'
+import Header from '~/components/Header.astro'
+import Footer from '~/components/Footer.astro'
+import { SEO } from 'astro-seo'
+
+interface Props {
+  title?: string
+  desc?: string
+}
+
+const props = Astro.props
+const themeConfig = Astro.locals.config
+
+const title = props.title ?? themeConfig.title
+const desc = props.desc ?? themeConfig.desc
+const canonical = themeConfig.website
+const image = 'https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg'
+---
+
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <SEO
+      charset="utf-8"
+      title={title}
+      description={desc}
+      extend={{
+        link: [{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }],
+        meta: [
+          {
+            name: "twitter:image",
+            content: image,
+          },
+          { name: "twitter:title", content: title },
+          { name: "twitter:description", content: desc },
+        ],
+      }}
+      openGraph={{
+        basic: {
+          title: title,
+          type: "article",
+          image: image,
+          url: canonical,
+        }
+      }}
+    />
+  </head>
+  <body>
+    <div un-max-lg="animate-fadein-down" un-lg="flex flex-row-reverse justify-center gap-4 px-8" class="container contain-layout m-a">
+      <div un-lg="sticky top-0 h-screen py-20 animate-fadein-left gap-8" un-lg:flex="~ col justify-between items-start gap-4" class="p-7.5">
+        <Header />
+        <Footer class="max-lg:hidden" />
+      </div>
+      <main un-lg="py-20 min-w-xl animate-fadein-down" class="p-7.5">
+        <slot />
+      </main>
+      <Footer class="lg:hidden p-7.5" />
+    </div>
+  </body>
+</html>
