@@ -1,34 +1,38 @@
 export const THEME_CONFIG: App.Locals['config'] = {
   /** blog title */
-  title: "活版印字",
+  title: "鱼类观测研究所",
   /** your name */
-  author: "Typography",
+  author: "lz233.ac.cn",
   /** website description */
-  desc: "Rediscory the beauty of typography",
+  desc: "a selfish saltfish.",
   /** your deployed domain */
-  website: "https://astro-theme-typography.vercel.app/",
+  website: "https://lz233.ac.cn",
   /** your locale */
-  locale: "en-us",
+  locale: "zh-cn",
   /** theme style */
-  themeStyle: "light",
+  //themeStyle: "auto",
   /** your socials */
   socials: [
     {
       name: "github",
-      href: "https://github.com/moeyua/astro-theme-typography",
+      href: "https://github.com/lz233",
+    },
+    {
+      name: "twitter",
+      href: "https://twitter.com/lz__233",
+    },
+    {
+      name: "mastodon",
+      href: "https://mastodon.social/@lz233",
+    },
+    {
+      name: "telegram",
+      href: "https://connect.lz233.ac.cn/tg-group",
     },
     {
       name: "rss",
       href: "/atom.xml",
     },
-    {
-      name: "twitter",
-      href: "https://github.com/moeyua/astro-theme-typography",
-    },
-    {
-      name: "mastodon",
-      href: "https://github.com/moeyua/astro-theme-typography",
-    }
   ],
   /** your navigation links */
   navs: [
