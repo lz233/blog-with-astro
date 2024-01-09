@@ -14,6 +14,7 @@ interface Props {
 const props = Astro.props
 const themeConfig = Astro.locals.config
 
+const site = themeConfig.title
 const title = props.title ?? themeConfig.title
 const desc = props.desc ?? themeConfig.desc
 const canonical = themeConfig.website
@@ -35,6 +36,7 @@ const image = 'https://github.com/moeyua/astro-theme-typography/blob/85204bceb6d
             name: "twitter:image",
             content: image,
           },
+          { name: "twitter:site", content: site },
           { name: "twitter:title", content: title },
           { name: "twitter:description", content: desc },
         ],
