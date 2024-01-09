@@ -19,8 +19,22 @@ const themeConfig = Astro.locals.config;
 const title = props.title ?? themeConfig.title;
 const desc = props.desc ?? themeConfig.desc;
 const canonical = themeConfig.website;
-const image = props.banner&& await getImage({src: props.banner, format: 'jpeg'})
-const optimizedImage = image?.src ? new URL(image.src, Astro.url).toString() : "";
+
+const image =
+  props.banner &&
+  (await getImage({
+    src: props.banner,
+    format: "jpeg",
+    width: (Math.max(props.banner.width,props.banner.height) > 4096)
+     ? ((props.banner.width>=props.banner.height)?4096:props.banner.width*(4096.0/props.banner.height))
+     : props.banner.width,
+    height: (Math.max(props.banner.width,props.banner.height) > 4096)
+     ? ((props.banner.height>=props.banner.width)?4096:props.banner.height*(4096.0/props.banner.width))
+     : props.banner.height,
+  }));
+const optimizedImage = image?.src
+  ? new URL(image.src, Astro.url).toString()
+  : "";
 ---
 
 <html lang="en">
