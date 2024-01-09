@@ -33,7 +33,15 @@ body {
 }
 
 .post-title\! {
-  font-family: theme("fontFamily.serif");
+  font-family: theme("fontFamily.serif") !important;
+}
+
+.heti,.heti--sans {
+  font-family: theme("fontFamily.sans") !important;
+}
+
+.heti {
+  font-size: 18px !important;
 }
 
 a {

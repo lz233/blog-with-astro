@@ -3,6 +3,7 @@ import {
   presetUno,
   presetAttributify,
   presetIcons,
+  presetWebFonts
 } from "unocss";
 import transformerDirectives from "@unocss/transformer-directives";
 import { THEME_CONFIG } from "./src/theme.config";
@@ -27,7 +28,34 @@ export default defineConfig({
       cdn: 'https://esm.sh/',
       collections: {
         
-      }
+      },
+    }),
+    presetWebFonts({
+      provider: 'google',
+      fonts: {
+        Noto: [
+          {
+            name: 'Noto Sans HK',
+            weights: ['400'],
+            italic: true,
+          },
+          {
+            name: 'Noto Sans SC',
+            weights: ['400'],
+            italic: true,
+          },
+          {
+            name: 'Noto Serif HK',
+            weights: ['400','700'],
+            italic: true,
+          },
+          {
+            name: 'Noto Serif SC',
+            weights: ['400','700'],
+            italic: true,
+          },
+        ],
+      },
     }),
   ],
   theme: {
@@ -35,11 +63,12 @@ export default defineConfig({
       "foregroundLight": foregroundLight,
       "backgroundLight": backgroundLight,
       "foregroundDark": foregroundDark,
-      "backgroundDark": backgroundDark
+      "backgroundDark": backgroundDark,
     },
     fontFamily: {
-      sans: '"Source Sans Pro","Roboto","Helvetica","Helvetica Neue","Source Han Sans SC","Source Han Sans TC","PingFang SC","PingFang HK","PingFang TC",sans-serif',
-      serif: '"HiraMinProN-W6","Source Han Serif CN","Source Han Serif SC","Source Han Serif TC",serif',
+      sans: '"Noto Sans HK","Noto Sans SC","PingFang SC","PingFang HK","PingFang TC","Source Sans Pro","Roboto","Helvetica","Helvetica Neue","Source Han Sans SC","Source Han Sans TC",sans-serif',
+      serif: '"Noto Serif HK","Noto Serif SC","HiraMinProN-W6","Source Han Serif CN","Source Han Serif SC","Source Han Serif TC",serif',
+      //serif: '"TeX Gyre Pagella", "NotoSerifSC", UbuntuMono, Menlo, Monaco, monospace, sans-serif',
     },
     animation: {
       keyframes: {
@@ -52,7 +81,7 @@ export default defineConfig({
   },
   shortcuts: [
     ['icon', 'inline-block '],
-    ['post-title', 'text-6 font-bold lh-7.5 m-0']
+    ['post-title', 'text-6 font-bold lh-7.5 m-0'],
   ],
   rules: [
 

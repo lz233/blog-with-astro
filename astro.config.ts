@@ -7,6 +7,10 @@ import sitemap from "@astrojs/sitemap";
 // https://astro.build/config
 export default defineConfig({
   site: THEME_CONFIG.website,
+  server: {
+    port: 4321,
+    host: true
+  },
   integrations: [
     UnoCSS({
       injectReset: true
