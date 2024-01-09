@@ -4,9 +4,9 @@ export const THEME_CONFIG: App.Locals['config'] = {
   /** your name */
   author: "lz233.ac.cn",
   /** website description */
-  desc: "a selfish saltfish.",
+  desc: "selfish saltfish.",
   /** your deployed domain */
-  website: "https://lz233.ac.cn/",
+  website: "https://blog-with-astro.vercel.app/",
   /** your locale */
   locale: "zh-cn",
   /** theme style */
