@@ -6,7 +6,7 @@ export const THEME_CONFIG: App.Locals['config'] = {
   /** website description */
   desc: "a selfish saltfish.",
   /** your deployed domain */
-  website: "https://lz233.ac.cn",
+  website: "https://lz233.ac.cn/",
   /** your locale */
   locale: "zh-cn",
   /** theme style */
@@ -46,7 +46,11 @@ export const THEME_CONFIG: App.Locals['config'] = {
     },
     {
       name: "Categories",
-      href: "/categories"
+      href: "/categories",
+    },
+    {
+      name: "Friends",
+      href: "/friends",
     },
     {
       name: "About",

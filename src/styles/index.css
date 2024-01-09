@@ -21,7 +21,7 @@ html {
 body {
   --uno: antialiased;
   color: var(--foreground-color);
-  
+
   font-family: theme("fontFamily.sans");
   line-height: normal;
   text-align: left;
@@ -36,7 +36,8 @@ body {
   font-family: theme("fontFamily.serif") !important;
 }
 
-.heti,.heti--sans {
+.heti,
+.heti--sans {
   font-family: theme("fontFamily.sans") !important;
 }
 
@@ -81,10 +82,15 @@ a:hover.normal {
   border-radius: 4px;
 }
 
+.heti hr {
+  background-color: var(--foreground-color) !important;
+}
+
 @media (max-width: 1023.9px) {
   [un-lg~="animate-fadein-down"] {
     animation: fadein-down 1s ease-out;
   }
+
   [un-max-lg~="animate-fadein-down"] {
     animation: fadein-down 1s ease-out;
   }
@@ -94,6 +100,7 @@ a:hover.normal {
   [un-lg~="animate-fadein-down"] {
     animation: fadein-down 1s ease-out;
   }
+
   [un-lg~="animate-fadein-left"] {
     animation: fadein-left 1s ease-out;
   }

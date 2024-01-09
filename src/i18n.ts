@@ -5,6 +5,7 @@ export const LANGUAGES = {
     Categories: '分类',
     Archive: '归档',
     Tags: '标签',
+    Friends: '友人',
     About: '关于',
     Links: '链接',
 
@@ -28,6 +29,7 @@ export const LANGUAGES = {
     Categories: 'Categories',
     Archive: 'Archive',
     Tags: 'Tags',
+    Friends: 'Friends',
     About: 'About',
     Links: 'Links',
 
@@ -51,6 +53,7 @@ export const LANGUAGES = {
     Categories: '分類',
     Archive: '歸檔',
     Tags: '標籤',
+    Friends: '友人',
     About: '關於',
     Links: '鏈接',
 
@@ -74,6 +77,7 @@ export const LANGUAGES = {
     Categories: 'カテゴリー',
     Archive: 'アーカイブ',
     Tags: 'タグ',
+    Friends: '友人',
     About: '私について',
     Links: 'リンク',
 

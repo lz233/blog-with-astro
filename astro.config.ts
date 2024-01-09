@@ -1,8 +1,10 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, passthroughImageService } from 'astro/config';
 import UnoCSS from 'unocss/astro';
 import { THEME_CONFIG } from "./src/theme.config";
 import robotsTxt from "astro-robots-txt";
 import sitemap from "@astrojs/sitemap";
+
+import mdx from "@astrojs/mdx";
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,11 +13,15 @@ export default defineConfig({
     port: 4321,
     host: true
   },
+  image: {
+    service: passthroughImageService()
+  },
   integrations: [
     UnoCSS({
       injectReset: true
     }),
-    robotsTxt(), 
-    sitemap()
+    robotsTxt(),
+    sitemap(),
+    mdx()
   ]
 });

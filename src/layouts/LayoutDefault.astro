@@ -1,25 +1,25 @@
 ---
-import '~/styles/index.css'
+import "~/styles/index.css";
 // https://sivan.github.io/heti
-import '~/styles/heti.min.css'
-import Header from '~/components/Header.astro'
-import Footer from '~/components/Footer.astro'
-import { SEO } from 'astro-seo'
+import "~/styles/heti.min.css";
+import Header from "~/components/Header.astro";
+import Footer from "~/components/Footer.astro";
+import { SEO } from "astro-seo";
 
 interface Props {
-  title?: string
-  desc?: string
-  banner?: string
+  title?: string;
+  desc?: string;
+  banner?: ImageMetadata;
 }
 
-const props = Astro.props
-const themeConfig = Astro.locals.config
+const props = Astro.props;
+const themeConfig = Astro.locals.config;
 
-const site = themeConfig.title
-const title = props.title ?? themeConfig.title
-const desc = props.desc ?? themeConfig.desc
-const canonical = themeConfig.website
-const image = props.banner?? ''
+const site = themeConfig.title;
+const title = props.title ?? themeConfig.title;
+const desc = props.desc ?? themeConfig.desc;
+const canonical = themeConfig.website;
+const image = props.banner?.src ? new URL(props.banner.src, Astro.url).toString() : "";
 ---
 
 <html lang="en">
@@ -31,13 +31,14 @@ const image = props.banner?? ''
       title={title}
       description={desc}
       extend={{
-        link: [{ rel: 'icon', href: '/favicon.jpg', type: 'image/' }],
+        link: [{ rel: "icon", href: "/favicon.jpg", type: "image/" }],
         meta: [
           {
             name: "twitter:image",
             content: image,
           },
           { name: "twitter:site", content: site },
+          { name: "twitter:card", content: "summary_large_image" },
           { name: "twitter:title", content: title },
           { name: "twitter:description", content: desc },
         ],
@@ -48,13 +49,21 @@ const image = props.banner?? ''
           type: "article",
           image: image,
           url: canonical,
-        }
+        },
       }}
     />
   </head>
   <body>
-    <div un-max-lg="animate-fadein-down" un-lg="flex flex-row-reverse justify-center gap-4 px-8" class="container contain-layout m-a">
-      <div un-lg="sticky top-0 h-screen pt-20 animate-fadein-left gap-8" un-lg:flex="~ col justify-between items-start gap-4" class="p-7.5">
+    <div
+      un-max-lg="animate-fadein-down"
+      un-lg="flex flex-row-reverse justify-center gap-4 px-8"
+      class="container contain-layout m-a"
+    >
+      <div
+        un-lg="sticky top-0 h-screen pt-20 animate-fadein-left gap-2"
+        un-lg:flex="~ col justify-between items-start gap-4"
+        class="p-7.5"
+      >
         <Header />
         <Footer class="max-lg:hidden" />
       </div>
