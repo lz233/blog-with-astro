@@ -16,7 +16,6 @@ interface Props {
 const props = Astro.props;
 const themeConfig = Astro.locals.config;
 
-const site = themeConfig.title;
 const title = props.title ?? themeConfig.title;
 const desc = props.desc ?? themeConfig.desc;
 const canonical = themeConfig.website;
@@ -39,7 +38,7 @@ const optimizedImage = image?.src ? new URL(image.src, Astro.url).toString() : "
             name: "twitter:image",
             content: optimizedImage,
           },
-          { name: "twitter:site", content: site },
+          { name: "twitter:creator", content: "@lz__233" },
           { name: "twitter:card", content: "summary_large_image" },
           { name: "twitter:title", content: title },
           { name: "twitter:description", content: desc },
