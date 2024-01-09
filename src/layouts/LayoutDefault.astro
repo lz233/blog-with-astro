@@ -9,6 +9,7 @@ import { SEO } from 'astro-seo'
 interface Props {
   title?: string
   desc?: string
+  banner?: string
 }
 
 const props = Astro.props
@@ -18,7 +19,7 @@ const site = themeConfig.title
 const title = props.title ?? themeConfig.title
 const desc = props.desc ?? themeConfig.desc
 const canonical = themeConfig.website
-const image = 'https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg'
+const image = props.banner?? ''
 ---
 
 <html lang="en">
