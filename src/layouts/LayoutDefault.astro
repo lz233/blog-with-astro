@@ -5,6 +5,7 @@ import "~/styles/heti.min.css";
 import Header from "~/components/Header.astro";
 import Footer from "~/components/Footer.astro";
 import { SEO } from "astro-seo";
+import { getImage } from "astro:assets";
 
 interface Props {
   title?: string;
@@ -19,7 +20,8 @@ const site = themeConfig.title;
 const title = props.title ?? themeConfig.title;
 const desc = props.desc ?? themeConfig.desc;
 const canonical = themeConfig.website;
-const image = props.banner?.src ? new URL(props.banner.src, Astro.url).toString() : "";
+const image = props.banner&& await getImage({src: props.banner, format: 'jpeg'})
+const optimizedImage = image?.src ? new URL(image.src, Astro.url).toString() : "";
 ---
 
 <html lang="en">
@@ -35,7 +37,7 @@ const image = props.banner?.src ? new URL(props.banner.src, Astro.url).toString(
         meta: [
           {
             name: "twitter:image",
-            content: image,
+            content: optimizedImage,
           },
           { name: "twitter:site", content: site },
           { name: "twitter:card", content: "summary_large_image" },
@@ -47,7 +49,7 @@ const image = props.banner?.src ? new URL(props.banner.src, Astro.url).toString(
         basic: {
           title: title,
           type: "article",
-          image: image,
+          image: optimizedImage,
           url: canonical,
         },
       }}
