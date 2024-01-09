@@ -39,6 +39,7 @@ const optimizedImage = image?.src ? new URL(image.src, Astro.url).toString() : "
             content: optimizedImage,
           },
           { name: "twitter:creator", content: "@lz__233" },
+          { name: "twitter:site", content: "@lz__233" },
           { name: "twitter:card", content: "summary_large_image" },
           { name: "twitter:title", content: title },
           { name: "twitter:description", content: desc },
