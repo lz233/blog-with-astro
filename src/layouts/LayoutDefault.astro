@@ -25,16 +25,20 @@ const image =
   (await getImage({
     src: props.banner,
     format: "jpeg",
-    width: (Math.max(props.banner.width,props.banner.height) > 4096)
-     ? ((props.banner.width>=props.banner.height)?4096:props.banner.width*(4096.0/props.banner.height))
-     : props.banner.width,
-    height: (Math.max(props.banner.width,props.banner.height) > 4096)
-     ? ((props.banner.height>=props.banner.width)?4096:props.banner.height*(4096.0/props.banner.width))
-     : props.banner.height,
+    /*width:
+      Math.max(props.banner.width, props.banner.height) > 4096
+        ? props.banner.width >= props.banner.height
+          ? 4096
+          : props.banner.width * (4096.0 / props.banner.height)
+        : props.banner.width,
+    height:
+      Math.max(props.banner.width, props.banner.height) > 4096
+        ? props.banner.height >= props.banner.width
+          ? 4096
+          : props.banner.height * (4096.0 / props.banner.width)
+        : props.banner.height,*/
   }));
-const optimizedImage = image?.src
-  ? new URL(image.src, Astro.url).toString()
-  : "";
+const optimizedImage = new URL(image?.src??"/placeholder.png", Astro.url).toString();
 ---
 
 <html lang="en">
