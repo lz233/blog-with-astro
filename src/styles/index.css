@@ -49,6 +49,14 @@ body {
   border-color: var(--foreground-color) !important;
 }
 
+.heti blockquote {
+  border-left: 1px solid;
+  border-left-color: var(--foreground-color);
+
+  margin-inline-start: 0px !important;
+  margin-inline-end: 0px !important;
+}
+
 a {
   transition: color 0.3s ease 0s, background-color 0.3s ease 0s;
   border-bottom: solid 2px;

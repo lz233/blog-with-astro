@@ -1,8 +1,8 @@
 ---
 title: 在 2023 年末的随笔
 pubDate: 2023-12-26 16:08:59
-description: 所以，不要谎言，我要面对现实的复杂度。
-categories: [随笔,年鉴]
+description: '所以，不要谎言，我要面对现实的复杂度。'
+categories: [随笔, 年鉴]
 banner: './musings-in-late-2023/banner-preview.jpg'
 ---
 

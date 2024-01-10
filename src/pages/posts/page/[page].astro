@@ -9,7 +9,7 @@ const { translate: t } = Astro.locals
 
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getPosts()
-  return paginate(posts, { pageSize: 5 })
+  return paginate(posts, { pageSize: 10 })
 }) satisfies GetStaticPaths
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>

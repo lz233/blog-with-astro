@@ -13,6 +13,9 @@ export default defineConfig({
     port: 4321,
     host: true
   },
+  redirects:{
+    '/': '/posts/page/1'
+  },
   image: {
     service: passthroughImageService()
   },

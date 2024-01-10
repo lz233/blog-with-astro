@@ -32,7 +32,9 @@ const { translate: t } = Astro.locals;
   banner={entry.data.banner}
 >
   <Post post={entry}>
-    <Content />
+    <div class="pt-8">
+      <Content/>
+    </div>
   </Post>
   <Pagination
     showLeft={Boolean(prev)}
