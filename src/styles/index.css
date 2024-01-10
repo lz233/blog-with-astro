@@ -45,6 +45,10 @@ body {
   font-size: 18px !important;
 }
 
+.heti th, .heti td {
+  border-color: var(--foreground-color) !important;
+}
+
 a {
   transition: color 0.3s ease 0s, background-color 0.3s ease 0s;
   border-bottom: solid 2px;
