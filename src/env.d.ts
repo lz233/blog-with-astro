@@ -14,7 +14,7 @@ declare namespace App {
       /** your locale */
       locale: string;
       /** theme style */
-      themeStyle: 'light'|'auto'|'dark';
+      //themeStyle: 'light'|'auto'|'dark';
       /** your socials */
       /*socials: Array<{
         icon: string;

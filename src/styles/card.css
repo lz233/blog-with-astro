@@ -30,7 +30,7 @@
 @media (min-width: 1024px) {
     .card {
         aspect-ratio: 1/1;
-        width: 170px;
+        width: 160px;
     }
 
     .card-icon {
