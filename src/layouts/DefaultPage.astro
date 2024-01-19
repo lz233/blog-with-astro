@@ -1,0 +1,22 @@
+---
+import LayoutDefault from "~/layouts/LayoutDefault.astro";
+import Comment from "~/components/Comment.astro";
+import type { MarkdownLayoutProps } from 'astro';
+
+type Props = MarkdownLayoutProps<{
+  title: string;
+  canComment: boolean;
+}>;
+
+const { title, canComment = true } = Astro.props.frontmatter;
+---
+
+<LayoutDefault>
+    <article class="heti">
+        <h1 class="post-title!">
+            <a href='./'>{title}</a>
+        </h1>
+        <slot />
+    </article>
+    {canComment && <Comment/>}
+</LayoutDefault>

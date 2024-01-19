@@ -11,29 +11,6 @@ export const THEME_CONFIG: App.Locals['config'] = {
   locale: "zh-cn",
   /** theme style */
   //themeStyle: "auto",
-  /** your socials */
-  socials: [
-    {
-      name: "github",
-      href: "https://github.com/lz233",
-    },
-    {
-      name: "twitter",
-      href: "https://twitter.com/lz__233",
-    },
-    {
-      name: "mastodon",
-      href: "https://mastodon.social/@lz233",
-    },
-    {
-      name: "telegram",
-      href: "https://connect.lz233.ac.cn/tg-group",
-    },
-    {
-      name: "rss",
-      href: "/atom.xml",
-    },
-  ],
   /** your navigation links */
   navs: [
     {

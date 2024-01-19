@@ -27,7 +27,8 @@ export default defineConfig({
       warn: true,
       cdn: 'https://esm.sh/',
       collections: {
-        
+        mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default),
+        mingcute: () => import('@iconify-json/mingcute/icons.json').then(i => i.default),
       },
     }),
     presetWebFonts({
@@ -90,6 +91,15 @@ export default defineConfig({
     transformerDirectives(),
   ],
   safelist: [
-    ...socials.map((social) => `i-mdi-${social.name}`),
+    //...socials.map((social) => `i-${social.icon}`),
+    'i-mdi-twitter',
+    'i-mdi-mastodon',
+    'i-ri-unsplash-fill',
+    'i-mdi-github',
+    'i-mingcute-telegram-fill',
+    'i-mdi-email',
+    'i-mdi-microsoft-onedrive',
+    'i-mdi-link',
+    'i-mdi-rss',
   ],
 })

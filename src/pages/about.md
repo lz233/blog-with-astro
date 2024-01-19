@@ -1,13 +1,9 @@
-
-import LayoutDefault from "~/layouts/LayoutDefault.astro"
-import Comment from "~/components/Comment.astro";
-
-<LayoutDefault>
-<article class="heti">
-<h1 class="post-title!">
-    <a href={`/about`}>关于</a>
-</h1>
 ---
+title: 自介
+canComment: true
+layout: ~/layouts/DefaultPage.astro
+---
+
 我猜，对陌生人来说，第一次会看的肯定是这个。那这一次，就考虑我不认识的人多一点。
 
 正式的名称是「lz 差不多是条咸鱼了」，可以称我为~~小~~鱼鱼之类。如果能和我成为朋友的话，我会很开心的！
@@ -19,6 +15,3 @@ import Comment from "~/components/Comment.astro";
 性格是 INFP，自认为是一个没有能力却充满梦的人，大概是与主流社会格格不入的。
 
 嗯，想和我聊天的话，就请直接 [PM](https://connect.lz233.ac.cn/tg-pm) 我吧，或许可以从最近面对的事情开始谈，到天马行空。我们都说，见字如面，想要更正式的交流也是绝对值得的，试试从[邮件](mailto:ohayou@lz233.ac.cn)开始一段新的友谊或许会更有意思！
-</article>
-<Comment/>
-</LayoutDefault>

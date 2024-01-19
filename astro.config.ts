@@ -14,7 +14,7 @@ export default defineConfig({
     host: true
   },
   redirects:{
-    '/': '/posts/page/1'
+    //'/': '/posts/page/1'
   },
   image: {
     service: passthroughImageService()

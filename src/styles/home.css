@@ -1,0 +1,23 @@
+.home-h1 {
+    font-family: theme("fontFamily.serif");
+}
+
+.home-h2 {
+    font-family: theme("fontFamily.serif");
+}
+
+.post-title\! {
+    font-size: 20px !important;
+}
+
+.post-summary {
+    font-size: 16px !important;
+}
+
+@media (min-width: 1024px) {}
+
+@media (max-width: 1024px) {
+    .home-card-div {
+        flex-direction: column;
+    }
+}

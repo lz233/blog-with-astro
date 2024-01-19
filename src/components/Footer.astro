@@ -10,7 +10,7 @@ const year = new Date().getFullYear()
 const { website, author } = Astro.locals.config
 ---
 
-<footer font-bold font-serif text-3 un-flex="~ col gap-1" un-lg="gap-1" {...attrs}>
+<footer font-bold font-serif text-3 un-flex="~ col gap-1" un-lg="gap-1 pt-2" {...attrs}>
   <p>
     © {year}
     <a target="_blank" href={website} rel="noopener noreferrer">{author}</a>

@@ -16,10 +16,11 @@ declare namespace App {
       /** theme style */
       themeStyle: 'light'|'auto'|'dark';
       /** your socials */
-      socials: Array<{
+      /*socials: Array<{
+        icon: string;
         name: string;
         href: string;
-      }>,
+      }>,*/
       /** your navigation links */
       navs: Array<{
         name: string;

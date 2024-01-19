@@ -1,0 +1,107 @@
+---
+import "~/styles/home.css";
+import LayoutDefault from "~/layouts/LayoutDefault.astro";
+import Post from "~/components/Post.astro";
+import { getPosts, getPostDescription } from "~/utils";
+import Card from "~/components/Card.astro";
+
+const posts = (await getPosts()).slice(0, 3);
+
+const { translate: t } = Astro.locals;
+---
+
+<LayoutDefault>
+  <article class="heti">
+    <h1 class="home-h1">👋 Hello！</h1>
+    <slot />
+    <h2 class="home-h2">Posts</h2>
+    <section contain-layout un-flex="~ col gap-4">
+      {
+        posts.map((post) => (
+          <Post post={post}>
+            <p class="post-summary line-clamp-4">{getPostDescription(post)}</p>
+          </Post>
+        ))
+      }
+      <h1 class="post-title! flex inline-flex items-center">
+        <a href={`/posts/page/1/`}>{t(`all_posts`)}</a>
+        <i class="i-mdi-chevron-double-right icon"></i>
+      </h1>
+    </section>
+    <h2 class="home-h2">Platforms</h2>
+    <div class="home-card-div flex flex-wrap contain-layout gap-4">
+      <Card
+        href="https://twitter.com/lz__233"
+        icon="mdi-twitter"
+        title="Twitter"
+        description="@lz__233"
+      />
+      <Card
+        href="https://mastodon.social/@lz233"
+        icon="mdi-mastodon"
+        title="Mastodon"
+        description="@lz233@mastodon.social"
+      />
+      <Card
+        href="https://unsplash.com/@lz233"
+        icon="ri-unsplash-fill"
+        title="Unsplash"
+        description="@lz233"
+      />
+      <Card
+        href="https://github.com/lz233"
+        icon="mdi-github"
+        title="GitHub"
+        description="lz233"
+      />
+    </div>
+    <h2 class="home-h2">Get Touch</h2>
+    <div class="home-card-div flex flex-wrap contain-layout gap-4">
+      <Card
+        href="https://t.me/lz233"
+        icon="mingcute-telegram-fill"
+        title="PM"
+        description="@lz233"
+      />
+      <Card
+        href="https://t.me/fish_lab"
+        icon="mingcute-telegram-fill"
+        title="Channel"
+        description="@fish_lab"
+      />
+      <Card
+        href="https://t.me/+ubHqaAaE1kthNmU1"
+        icon="mingcute-telegram-fill"
+        title="Group"
+        description="t.me"
+      />
+      <Card
+        href=""
+        icon="mdi-email"
+        title="Mail"
+        description="ohayou#lz233.ac.cn"
+      />
+    </div>
+    <h2 class="home-h2">Links</h2>
+    <div class="home-card-div flex flex-wrap contain-layout gap-4">
+      <Card
+        href="https://drive.lz233.ac.cn"
+        icon="mdi-microsoft-onedrive"
+        title="OneDrive"
+        description="drive.lz233.ac.cn"
+      />
+      <Card
+        href="https://project.ac.cn"
+        icon="mdi-link"
+        title="Project Institution"
+        description="project.lz233.ac.cn"
+      />
+      <Card
+        href="/atom.xml"
+        icon="mdi-rss"
+        title="RSS"
+        description="lz233.ac.cn"
+      />
+    </div>
+  </article>
+</LayoutDefault>

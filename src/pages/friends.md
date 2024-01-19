@@ -1,11 +1,9 @@
-import LayoutDefault from "~/layouts/LayoutDefault.astro"
-import Comment from "~/components/Comment.astro";
+---
+title: 友人
+canComment: true
+layout: ~/layouts/DefaultPage.astro
+---
 
-<LayoutDefault>
-<article class="heti">
-<h1 class="post-title!">
-    <a href={`/friends`}>友人</a>
-</h1>
 |  好耶！(按时间排序，失效的会添加删除线以作存档)  |
 | :----------------------------------------------: |
 |       [Yuko's Blog](https://blog.779.moe)        |
@@ -27,6 +25,3 @@ import Comment from "~/components/Comment.astro";
 |         [晨鹤部落格](https://chenhe.me)          |
 |       [Kevin's Blog](https://kevintan.pro)       |
 |     [ℂ𝕚𝕔𝕒𝕕𝕒𝟘𝟘𝟘](https://www.cicada000.work)      |
-</article>
-<Comment/>
-</LayoutDefault>
