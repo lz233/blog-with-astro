@@ -16,7 +16,9 @@ const { title, canComment = true } = Astro.props.frontmatter;
         <h1 class="post-title!">
             <a href='./'>{title}</a>
         </h1>
-        <slot />
+        <div class="pt-8">
+            <slot />
+          </div>
     </article>
     {canComment && <Comment/>}
 </LayoutDefault>

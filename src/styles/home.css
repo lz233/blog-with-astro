@@ -13,11 +13,3 @@
 .post-summary {
     font-size: 16px !important;
 }
-
-@media (min-width: 1024px) {}
-
-@media (max-width: 1024px) {
-    .home-card-div {
-        flex-direction: column;
-    }
-}

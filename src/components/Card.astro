@@ -1,22 +1,23 @@
 ---
 import "~/styles/card.css";
+import { Image } from 'astro:assets';
 
 interface Props {
-    href: string;
-    icon: string;
+    href?: string;
+    icon?: string;
+    image?: string;
     title: string;
-    description: string;
+    description?: string;
 }
-const { href, icon, title, description } = Astro.props;
+const { href, icon, image, title, description } = Astro.props;
 ---
 
 <a class="normal" href={href} target="_blank" title={title}>
     <div class="card">
-        <div
-            title={title}
-            class={`card-icon i-${icon}`}/>
+        {icon && <div title={title} class={`card-icon i-${icon}`}></div>}
+        {image && <Image class="card-icon" src={image} width="40" height="40" alt={title}></Image>}
         <p class="card-title">{title}</p>
-        <p class="card-descripton w-full">{description}</p>
+        {description && <p class="card-descripton w-full">{description}</p>}
         <div class="icon-1">
             <svg
                 xmlns:xlink="http://www.w3.org/1999/xlink"

@@ -36,6 +36,12 @@ body {
   font-family: theme("fontFamily.serif") !important;
 }
 
+@media (max-width: 1024px) {
+  .card-div {
+      flex-direction: column;
+  }
+}
+
 .heti,
 .heti--sans {
   font-family: theme("fontFamily.sans") !important;
