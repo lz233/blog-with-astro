@@ -93,6 +93,7 @@ export default defineConfig({
   safelist: [
     //...socials.map((social) => `i-${social.icon}`),
     'i-mdi-twitter',
+    "i-ri-bluesky-fill",
     'i-mdi-mastodon',
     'i-ri-unsplash-fill',
     'i-mdi-github',
