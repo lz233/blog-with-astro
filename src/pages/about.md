@@ -14,4 +14,4 @@ layout: ~/layouts/DefaultPage.astro
 
 性格是 INFP，自认为是一个没有能力却充满梦的人，大概是与主流社会格格不入的。
 
-嗯，想和我聊天的话，就请直接 [PM](https://connect.lz233.ac.cn/tg-pm) 我吧，或许可以从最近面对的事情开始谈，到天马行空。我们都说，见字如面，想要更正式的交流也是绝对值得的，试试从[邮件](mailto:ohayou@lz233.ac.cn)开始一段新的友谊或许会更有意思！
+嗯，想和我聊天的话，就请直接 [PM](https://connect.with.fish/tg-pm) 我吧，或许可以从最近面对的事情开始谈，到天马行空。我们都说，见字如面，想要更正式的交流也是绝对值得的，试试从[邮件](mailto:keep@with.fish)开始一段新的友谊或许会更有意思！
