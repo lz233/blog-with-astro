@@ -2,11 +2,11 @@ export const THEME_CONFIG: App.Locals['config'] = {
   /** blog title */
   title: "鱼类观测研究所",
   /** your name */
-  author: "lz233.ac.cn",
+  author: "with.fish",
   /** website description */
   desc: "selfish saltfish.",
   /** your deployed domain */
-  website: "https://lz233.ac.cn/",
+  website: "https://with.fish/",
   /** your locale */
   locale: "zh-cn",
   /** theme style */
