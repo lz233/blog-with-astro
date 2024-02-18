@@ -12,7 +12,7 @@ interface Props {
 const { href, icon, image, title, description } = Astro.props;
 ---
 
-<a class="normal" href={href} target="_blank" title={title}>
+<a class="normal card-a" href={href} target="_blank" title={title}>
     <div class="card">
         {icon && <div title={title} class={`card-icon i-${icon}`}></div>}
         {image && <Image class="card-icon" src={image} width="40" height="40" alt={title}></Image>}

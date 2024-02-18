@@ -1,3 +1,7 @@
+.card-a:hover {
+  border-block-end: 0px !important;
+}
+
 .card {
     position: relative;
     padding: 15px;
