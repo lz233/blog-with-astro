@@ -37,12 +37,12 @@ export default defineConfig({
         Noto: [
           {
             name: 'Noto Sans HK',
-            weights: ['400'],
+            weights: ['400','600'],
             italic: true,
           },
           {
             name: 'Noto Sans SC',
-            weights: ['400'],
+            weights: ['400','600'],
             italic: true,
           },
           {
