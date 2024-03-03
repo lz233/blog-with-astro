@@ -53,7 +53,7 @@ const optimizedImage = new URL(image?.src??"/placeholder.png", Astro.url).toStri
         link: [{ rel: "icon", href: "/favicon.jpg" }],
         meta: [
           { name: "twitter:image:src", content: optimizedImage },
-          { name: "twitter:image:alt", content: optimizedImage },
+          { name: "twitter:image:alt", content: desc },
           { name: "twitter:creator", content: "@lz__233" },
           { name: "twitter:site", content: "@lz__233" },
           { name: "twitter:card", content: "summary_large_image" },
