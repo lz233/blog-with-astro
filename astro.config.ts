@@ -3,7 +3,7 @@ import UnoCSS from 'unocss/astro';
 import { THEME_CONFIG } from "./src/theme.config";
 import robotsTxt from "astro-robots-txt";
 import sitemap from "@astrojs/sitemap";
-
+import { typst } from 'astro-typst';
 import mdx from "@astrojs/mdx";
 
 // https://astro.build/config
@@ -24,7 +24,7 @@ export default defineConfig({
       //theme: 'one-dark-pro',
       // Or visit here for more themes
       // https://shikiji.netlify.app/guide/dual-themes#light-dark-dual-themes
-      experimentalThemes: {
+      themes: {
          light: 'github-light',
          dark: 'github-dark',
       },
@@ -39,12 +39,18 @@ export default defineConfig({
   image: {
     service: passthroughImageService()
   },
+  vite: {
+    ssr: {
+      external: ["@myriaddreamin/typst-ts-node-compiler"],
+    }
+  },
   integrations: [
     UnoCSS({
       injectReset: true
     }),
     robotsTxt(),
     sitemap(),
-    mdx()
+    mdx(),
+    typst()
   ]
 });
