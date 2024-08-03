@@ -10,18 +10,18 @@
   f_1(j) = \left\{
   \begin{aligned}
   & a_{1,1} & j=1 \\\
-  & min(f_1[j-1]+a_{1,j}, f_2[j-1]+t_{2,j-1}+a_{1,j}) & j > 1
+  & \min(f_1[j-1]+a_{1,j}, f_2[j-1]+t_{2,j-1}+a_{1,j}) & j > 1
   \end{aligned}
   \right. \\\
   
   f_2(j) = \left\{
   \begin{aligned}
   & a_{2,1} & j=1 \\\
-  & min(f_2[j-1]+a_{2,j}, f_1[j-1]+t_{1,j-1}+a_{2,j}) & j > 1
+  & \min(f_2[j-1]+a_{2,j}, f_1[j-1]+t_{1,j-1}+a_{2,j}) & j > 1
   \end{aligned}
   \right. \\\
   
-  f^* = min(f_1[j],f_2[j])
+  f^* = \min(f_1[j],f_2[j])
   `)
 
   So:
@@ -36,20 +36,20 @@
     S \rightarrow S_{1,1}
     `),
     mitex(`
-    f_{1,2} = min(2+6, 4+1+6) = 8 \\
-    f_{2,2} = min(2+2+5, 4+5) = 9 \\
+    f_{1,2} = \min(2+6, 4+1+6) = 8 \\
+    f_{2,2} = \min(2+2+5, 4+5) = 9 \\
     f_2 = 8 \\
     S \rightarrow S_{1,1} \rightarrow S_{1,2}
     `),
     mitex(`
-    f_{1,3} = min(8+4, 9+2+6) = 12 \\
-    f_{2,3} = min(8+4+8, 9+8) = 17 \\
+    f_{1,3} = \min(8+4, 9+2+6) = 12 \\
+    f_{2,3} = \min(8+4+8, 9+8) = 17 \\
     f_3 = 12 \\
     S \rightarrow S_{1,1} \rightarrow S_{1,2} \rightarrow S_{1,3}
     `),
     mitex(`
-    f_{1,4} = min(12+8, 17+1+8) = 20 \\
-    f_{2,4} = min(12+1+4, 17+4) = 17 \\
+    f_{1,4} = \min(12+8, 17+1+8) = 20 \\
+    f_{2,4} = \min(12+1+4, 17+4) = 17 \\
     f_4 = 17 \\
     S \rightarrow S_{1,1} \rightarrow S_{1,2} \rightarrow S_{1,3} \rightarrow S_{2,4}
     `),
