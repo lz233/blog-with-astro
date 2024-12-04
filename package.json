@@ -12,12 +12,12 @@
     "update-theme": "./scripts/update-theme.sh"
   },
   "dependencies": {
-    "@astrojs/check": "^0.3.4",
-    "@astrojs/mdx": "^2.0.3",
-    "@astrojs/rss": "^4.0.1",
-    "@astrojs/sitemap": "^3.0.4",
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/mdx": "^4.0.1",
+    "@astrojs/rss": "^4.0.9",
+    "@astrojs/sitemap": "^3.2.1",
     "@myriaddreamin/typst-ts-node-compiler": "^0.5.0-rc6",
-    "astro": "^4.1.0",
+    "astro": "^5.0.2",
     "astro-robots-txt": "^1.0.0",
     "astro-seo": "^0.8.0",
     "astro-typst": "^0.4.0",
@@ -37,5 +37,6 @@
     "markdown-it": "^13.0.2",
     "sanitize-html": "^2.11.0",
     "unocss": "^0.58.3"
-  }
+  },
+  "packageManager": "yarn@4.5.3"
 }

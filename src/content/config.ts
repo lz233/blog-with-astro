@@ -1,6 +1,7 @@
 
 import { defineCollection, z } from "astro:content";
 import { rssSchema } from './rssSchema';
+import { format } from "path";
 
 const posts = defineCollection({
   type: 'content',
@@ -9,11 +10,7 @@ const posts = defineCollection({
     description: z.string().optional(),
     pubDate: z.coerce.date(),
     customData: z.string().optional(),
-    banner: image()
-      .refine((img) => Math.max(img.width, img.height) <= 4096, {
-        message: "Width and height of the banner must less than 4096 pixels"
-      })
-      .optional(),
+    banner: image().optional(),
     categories: z.array(z.string()),
     author: z.string().optional(),
     commentsUrl: z.string().optional(),
