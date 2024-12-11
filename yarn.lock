@@ -1005,6 +1005,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@iconify-json/academicons@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "@iconify-json/academicons@npm:1.2.1"
+  dependencies:
+    "@iconify/types": "npm:*"
+  checksum: 10c0/8c500b237721f2894f5f2a6d3eb1885e2bbb97f30e9d492a4006e8dbba5285bce186dcd76cb50bdd925f27688b2e40c4ac88a06fa91465d84355f3324c1f9f07
+  languageName: node
+  linkType: hard
+
 "@iconify-json/mdi@npm:^1.1.64":
   version: 1.1.67
   resolution: "@iconify-json/mdi@npm:1.1.67"
@@ -2492,6 +2501,7 @@ __metadata:
     "@astrojs/mdx": "npm:^4.0.1"
     "@astrojs/rss": "npm:^4.0.9"
     "@astrojs/sitemap": "npm:^3.2.1"
+    "@iconify-json/academicons": "npm:^1.2.1"
     "@iconify-json/mdi": "npm:^1.1.64"
     "@iconify-json/mingcute": "npm:^1.1.15"
     "@iconify-json/ri": "npm:^1.1.19"

@@ -29,6 +29,8 @@ export default defineConfig({
       collections: {
         mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default),
         mingcute: () => import('@iconify-json/mingcute/icons.json').then(i => i.default),
+        ri: () => import('@iconify-json/ri/icons.json').then(i => i.default),
+        academicons: () => import('@iconify-json/academicons/icons.json').then(i => i.default),
       },
     }),
     presetWebFonts({
@@ -93,10 +95,11 @@ export default defineConfig({
   safelist: [
     //...socials.map((social) => `i-${social.icon}`),
     'i-mdi-twitter',
-    "i-ri-bluesky-fill",
+    'i-ri-bluesky-fill',
     'i-mdi-mastodon',
     'i-ri-unsplash-fill',
     'i-mdi-github',
+    'i-academicons-orcid',
     'i-mingcute-telegram-fill',
     'i-mdi-email',
     'i-mdi-microsoft-onedrive',

@@ -26,6 +26,7 @@
     "vite": "^5.0.10"
   },
   "devDependencies": {
+    "@iconify-json/academicons": "^1.2.1",
     "@iconify-json/mdi": "^1.1.64",
     "@iconify-json/mingcute": "^1.1.15",
     "@iconify-json/ri": "^1.1.19",
