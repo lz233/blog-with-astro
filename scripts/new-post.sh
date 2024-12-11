@@ -4,12 +4,10 @@
 timestamp=$(date +"%Y-%m-%d %H:%M:%S")
 
 # Prompt the user to enter the title of the article
-read -p "Please enter the title of the article: " title
-
-# Generate the filename based on the title
-filename=$(echo "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+read -p "Please enter the path name of the article: " filename
 
 # Concatenate the file path
+folder="./src/content/posts/$filename"
 filepath="./src/content/posts/$filename.md"
 
 # Check if the file already exists
@@ -20,13 +18,14 @@ fi
 
 # Create a new article file
 touch "$filepath"
+mkdirs "$folder"
 
 # Write the header information of the article
 echo "---" >> "$filepath"
 echo "title: $title" >> "$filepath"
 echo "pubDate: $timestamp" >> "$filepath"
+echo "description: \"\"" >> "$filepath"
 echo "categories: []" >> "$filepath"
-echo "description: ''" >> "$filepath"
 echo "---" >> "$filepath"
 echo "" >> "$filepath"
 

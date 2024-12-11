@@ -1,0 +1,53 @@
+---
+title: SDN 从入门到交报告（一）：从 IP 到 MAC
+pubDate: 2024-12-11 20:07:54
+description: ""
+categories: [笔记]
+---
+
+import { Image } from 'astro:assets';
+import controlPlane from './sdn-getting-started-1/control-plane.webp';
+import serviceModels from './sdn-getting-started-1/service-models.webp';
+import cidr from './sdn-getting-started-1/cidr.webp';
+
+本学期的课程中需要做一个 SDN 的实验，所以本着不多学一点知识的原则，本系列文章介绍了从 IP 协议到 SDN ([Software-defined Networking](https://en.wikipedia.org/wiki/Software-defined_networking)) 网络的必要知识并最终提交实验报告的速通全过程。本系列默认读者已经掌握 TCP/UDP 以上层级的网络知识。本实验会用到的工具包括 [Mininet](http://mininet.org)，[Ryu](https://github.com/faucetsdn/ryu) 和 [Wireshark](https://www.wireshark.org) 等。让我们开始吧！
+
+## Network layer / Internet layer
+
+从 [Transport layer](https://en.wikipedia.org/wiki/Transport_layer) 继续向下，我们就到了 [Network layer](https://en.wikipedia.org/wiki/Network_layer)。Network layer 最核心的功能就是寻址和路由，即尽可能将数据包以最优路径发送给正确的主机。
+
+Network layer 分为两个平面，分别为 [Data plane](https://en.wikipedia.org/wiki/Data_plane) 和 [Control plane](https://en.wikipedia.org/wiki/Control_plane)。Data plane 是一个较小的表述，即其中一个路由如何控制和转发数据包；Control plane 是一个较大的表述，即从整个网络层面看，数据包如何传递。其中，Control plane 分为两种实现方式：传统路由和 SDN。传统路由是指将路由表预先写在每个路由的方式，而 SDN 指通过一个 Controller 动态更改路由规则的一种方式，即本篇的重点。
+
+<Image src={controlPlane} alt="" un-lg="w-lg m-auto"/>
+
+Network layer 分为多种服务模式，其中我们最熟知的就是 Internet，对应了 [Internet layer](https://en.wikipedia.org/wiki/Internet_layer) 和 Internet protocol。
+
+<Image src={serviceModels} alt="" un-lg="w-lg m-auto"/>
+
+## Internet protocol
+
+简单理解，IP ([Internet Protocol](https://en.wikipedia.org/wiki/Internet_Protocol)) 协议就是根据不同主机的 IP 地址进行路由的协议。关于 IP 地址如何分配的问题和 SDN 关系不大，略过。
+
+我们需要了解的是 CIDR ([Classless Inter Domain Routing](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing))，即识别类似 `a.b.c.d/x` 的 IP 地址。
+
+<Image src={cidr} alt="" un-lg="w-sm m-auto"/>
+
+在上面的例子中，`/23` 定义了一个 subnet，即前 23 位相同的主机，对于路由来说，处在同一子网。在这种情况下，前 23 位的部分叫做网络前缀，后面的叫做后缀。如果我们将前 23 位全部写为 1，并用十进制表达出来，这就是子网掩码，即 `255.255.254.0`，也就是说，`200.23.16.0/23` 的表达方式合并表示了 `200.23.16.0` 和 `255.255.254.0`。
+
+[ICMP](https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol) 协议在定义上虽然不属于 Internet layer，但是在我们实际需要 ping 某一个主机的时候，还是依附在 IP 协议之上，即每次 ping 会有一个 IP 数据包产生。
+
+## MAC / ARP
+
+从 Internet layer 向下，就来到了 [Link layer](https://en.wikipedia.org/wiki/Link_layer)。从 TCP/IP 模型来讲，这里是连接实际发生的地方。但是，我们不关心物理层面的连接，只关注 [MAC](https://en.wikipedia.org/wiki/MAC_address) 和 [ARP](https://en.wikipedia.org/wiki/Address_Resolution_Protocol)。
+
+MAC 地址简单来说就是一个网络硬件的标识符，一般由硬件厂商预先定义。ARP 协议是一种通过 Internet 协议互相交换 MAC 地址的协议。
+
+为何要有 ARP 协议？因为主机之间通过 IP 协议互相定位对方，所以 MAC 地址对与对方来说是不可见的，但是 IP 协议基于 Ethernet 进行传递，所以包中势必要带上 MAC 地址。每一个网络中的主机会在一段时间内自主地去寻找网络内的其他主机，并存一份 ARP 表在自己这，具体的流程会在后续文章中体现。
+
+OK，第一篇就到这里，下一篇文章会介绍 Mininet 的一些基本用法和 SDN 的一些基本知识。
+
+## References
+
+- [What is the network layer? | Network vs. Internet layer | Cloudflare](https://www.cloudflare.com/learning/network-layer/what-is-the-network-layer)
+
+- [什么是ARP？它是如何进行地址解析的？ - 华为](https://info.support.huawei.com/info-finder/encyclopedia/zh/ARP.html)
