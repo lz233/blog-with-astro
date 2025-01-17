@@ -11,7 +11,7 @@ import { getImage } from "astro:assets";
 interface Props {
   title?: string;
   desc?: string;
-  banner?: ImageMetadata;
+  banner?: string;
 }
 
 const props = Astro.props;
@@ -21,28 +21,34 @@ const title = props.title ?? themeConfig.title;
 const desc = props.desc ?? themeConfig.desc;
 const canonical = themeConfig.website;
 
-const image =
-  props.banner &&
-  (await getImage({
-    src: props.banner,
-    format: "jpeg",
-    /*width:
-      Math.max(props.banner.width, props.banner.height) > 4096
-        ? props.banner.width >= props.banner.height
-          ? 4096
-          : props.banner.width * (4096.0 / props.banner.height)
-        : props.banner.width,
-    height:
-      Math.max(props.banner.width, props.banner.height) > 4096
-        ? props.banner.height >= props.banner.width
-          ? 4096
-          : props.banner.height * (4096.0 / props.banner.width)
-        : props.banner.height,*/
-  }));
-const optimizedImage = new URL(image?.src??"/placeholder.png", Astro.url).toString();
+let optimizedImage = new URL("/placeholder.png", Astro.url).toString()
+
+if (props.banner) {
+  if (props.banner.toString().startsWith("http")) {
+    optimizedImage = props.banner;
+  } else {
+    const image = await getImage({
+      src: props.banner,
+      format: "jpeg",
+      /*width:
+        Math.max(props.banner.width, props.banner.height) > 4096
+          ? props.banner.width >= props.banner.height
+            ? 4096
+            : props.banner.width * (4096.0 / props.banner.height)
+          : props.banner.width,
+      height:
+        Math.max(props.banner.width, props.banner.height) > 4096
+          ? props.banner.height >= props.banner.width
+            ? 4096
+            : props.banner.height * (4096.0 / props.banner.width)
+          : props.banner.height,*/
+    });
+    optimizedImage = new URL(image.src, Astro.url).toString();
+  }
+}
 ---
 
-<html lang="en">
+<html lang="zh-cn">
   <head>
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />

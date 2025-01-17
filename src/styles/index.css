@@ -65,7 +65,7 @@ body {
 
 a {
   transition: color 0.3s ease 0s, background-color 0.3s ease 0s;
-  border-bottom: solid 2px;
+  border-block-end: solid 2px;
   border-color: var(--foreground-color);
   padding: 0;
   cursor: pointer;
@@ -74,7 +74,7 @@ a {
 a:hover {
   color: var(--background-color);
   background-color: var(--foreground-color);
-  border-bottom: solid transparent 2px;
+  border-block-end: solid transparent 2px;
 }
 
 .heti a:hover {
@@ -90,6 +90,11 @@ a.normal {
 a:hover.normal {
   color: inherit;
   background-color: transparent;
+}
+
+a:has(img) {
+  @apply border-b-none;
+  @apply transition-none;
 }
 
 .heti code {

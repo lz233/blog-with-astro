@@ -18,7 +18,7 @@ fi
 
 # Create a new article file
 touch "$filepath"
-mkdirs "$folder"
+mkdir "$folder"
 
 # Write the header information of the article
 echo "---" >> "$filepath"
