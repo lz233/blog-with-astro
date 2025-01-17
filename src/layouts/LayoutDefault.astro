@@ -11,7 +11,7 @@ import { getImage } from "astro:assets";
 interface Props {
   title?: string;
   desc?: string;
-  banner?: string;
+  banner?: ImageMetadata | string;
 }
 
 const props = Astro.props;
@@ -24,7 +24,7 @@ const canonical = themeConfig.website;
 let optimizedImage = new URL("/placeholder.png", Astro.url).toString()
 
 if (props.banner) {
-  if (props.banner.toString().startsWith("http")) {
+  if (typeof props.banner === "string" && props.banner.startsWith("http")) {
     optimizedImage = props.banner;
   } else {
     const image = await getImage({
