@@ -2,7 +2,7 @@
 import { Image } from "astro:assets";
 
 type Props = {
-    "un-lg"?: string;
+    id?: string;
     src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
     href?: string;
     target?: string;
@@ -10,9 +10,10 @@ type Props = {
     width?: number;
     height?: number;
     inferSize?: boolean;
+    "un-lg"?: string;
 }
 
-let { "un-lg": unlg, src, href, target = "_blank", alt = "", width, height, inferSize = false } = Astro.props;
+let {id, src, href, target = "_blank", alt = "", width, height, inferSize = false, "un-lg": unlg } = Astro.props;
 
 if (href == null) {
     if (typeof src === "string") {
@@ -29,7 +30,7 @@ if (href == null) {
 typeof src === "string" && width == null && height == null ? inferSize = true : "";
 --- 
 
-<a href={href} target={target}>
+<a id={id} href={href} target={target} >
     {
         typeof src === "string" ? (
             inferSize ? (

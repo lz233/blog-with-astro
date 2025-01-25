@@ -1,0 +1,119 @@
+---
+title: 从「Android」到「Flyme」：反编译级探索 + 调教指南
+pubDate: 2025-01-24 23:30:34
+description: "作为从原生 Android 转换而来的用家，带读者找出当下 Flyme 和 Android 的行为差异，并通过反编译找到可能的修正方法。"
+categories: [Android, 笔记, 魅族]
+banner: "./from-vanilla-android-to-aosp/banner.webp"
+---
+import ClickableImage from '~/components/ClickableImage.astro';
+import banner from './from-vanilla-android-to-aosp/banner.webp';
+import assistant1 from './from-vanilla-android-to-aosp/assistant1.webp';
+import assistant2 from './from-vanilla-android-to-aosp/assistant2.webp';
+import assistant3 from './from-vanilla-android-to-aosp/assistant3.webp';
+import assistant4 from './from-vanilla-android-to-aosp/assistant4.webp';
+import fcm1 from './from-vanilla-android-to-aosp/fcm1.webp';
+import fcm2 from './from-vanilla-android-to-aosp/fcm2.webp';
+import fcm3 from './from-vanilla-android-to-aosp/fcm3.webp';
+import fcm4 from './from-vanilla-android-to-aosp/fcm4.webp';
+import fcm5 from './from-vanilla-android-to-aosp/fcm5.webp';
+import fcm6 from './from-vanilla-android-to-aosp/fcm6.webp';
+import clone1 from './from-vanilla-android-to-aosp/clone1.webp';
+import clone2 from './from-vanilla-android-to-aosp/clone2.webp';
+import clone3 from './from-vanilla-android-to-aosp/clone3.webp';
+import clone4 from './from-vanilla-android-to-aosp/clone4.webp';
+
+<ClickableImage src={banner} un-lg="m-auto" />
+
+## 前言
+
+唠点闲话先。各位读者应当是知道我很欣赏 Xperia 的，但自从 Xperia 不用 21:9+4K 屏幕，迎来了名义上的死亡之后，其实市面上符合我要求的手机就屈指可数了：
+
+- Nothing 看起来外观不错，但是握持感完全不行，外放、马达、相机等基础体验也是千元国产机的水平。
+- Motorola 看起来系统很原生，但是硬件外观过于「国产」。
+- ASUS 的系统也比较原生，但是正面下巴过于廉价，再加之新品也归于主流，不再坚持其独特。
+- Nubia 的硬件外观很喜欢，但是系统又不太行。
+- Samsung 的旗舰机外观其实很好看，但是 OneUI 的审美欣赏不来。
+- SHARP [新机](https://tw.sharp/products/aquos-r9)感觉和 Xperia 有几分神似，可惜后盖相机 Deco 太丑。
+- Pixel 一切似乎都很好，但是不支持实体双卡。
+- 其他主流国产机的系统 UI 都感觉太丑，欣赏不来。
+
+这似乎成为了一个无解题。这时候魅族 21 Pro 进入了我的目光，它拥有三星亦或 Xperia 的硬朗外观、21:9 屏幕比例、和国产系统主流审美不同的 Flyme、解锁不会「熔断」的预期行为，再叠加上魅族 2024 年没有跟进其他厂发布新机，看起来快要绝种，「现在如果不是从云煤油成为煤油的最好时机，那可能就没有以后了」，我如是说道。
+
+作为一个从来都只用原生 Android （以下简称 Android）的用户来说，国产系统其实是比较有陌生感的，于是本篇的主题就是带读者找出这个时点下 Flyme 和 Android 的行为差异，并通过反编译观察代码逻辑找到可能的修正方法。
+
+## GMS & Play Store
+
+Flyme 在设置中就提供了开启 Google 服务的开关，开启之后手动从 [APKMirror](https://www.apkmirror.com/apk/google-inc/google-play-store) 下载一个 Play 商店安装包即可使用，注意 APKs 会安装失败，必须使用 APK 才可，后期 Play 会自己更新成 APP Bundle 版本，大可放心。
+
+## Google Assistant & Gmini
+
+在 Play 商店中下载 Gemini 即可启用 Google 中的 Gemini 模块（商店里的那个项目只是个快捷方式），不过这时候会发现 Flyme 并没有提供更改预设语音助手的选项，只在自己的 Aicy 语音设置中提供了长按电源键唤醒，并且如果将 Aicy 卸载，长按电源键的行为也不会是唤醒 Gemini，合理推测是直接将 Aicy 包名写死放在了 Framework 中。
+
+在 AOSP 中，处理系统级按键事件的逻辑写在 `services.jar` 里，反编译搜索相关代码可以发现是在 `com.android.server.policy.PhoneWindowManager`<sup>[1](#assistant1)</sup>。这里很明显判断了是否是国际版，如果不是国际版就使用自己的私有方法唤醒语音助手，至于唤醒的代码到底是什么，Flyme 在这里使用了注入方式<sup>[2](#assistant2)</sup>，并且我并没有找到被注入的源代码的位置，故无从考证。
+
+注意到，在下方 `resolvedLongPressOnPowerBehavior == 5` 分支里，只要不是国际版就会唤醒语音助手。再往上追到 `getResolvedLongPressOnPowerBehavior()` 方法中<sup>[3](#assistant3)</sup>，可以发现，只要开启了 Aicy 设置里长按电源键唤醒，就一定会被返回 `4`，也就是上面提及的国际版判断，但在这里传入 `mLongPressOnPowerBehavior == 5`，就一定也返回 `5`。至于这个变量是什么及如何修改，查找 AOSP 的代码可以很明确发现<sup>[4](#assistant4)</sup>，它被定义在 `Settings.Global.POWER_BUTTON_LONG_PRESS`，直接修改即可：`settings put global power_button_long_press 5`。
+
+更改设置值之后，还需要将 Aicy 语音设置中的电源键唤醒关闭，并将系统的语音助手设置为 Google 才可以正常通过长按电源键唤醒 Gemini。至于如何打开这个界面呢？去 Play 下载[绿色守护](https://play.google.com/store/apps/details?id=com.oasisfeng.greenify)，随后在设置中找到「长按导航栏行为」，并将行为改成 Google 即可，读者也可以去 Play 寻找其他[打开隐藏设置的 APP](https://play.google.com/store/apps/details?id=com.arumcomm.settingsshortcut)。
+
+题外话，熟悉 Android 的用户应该知道，在全屏手势开启的状态下，从屏幕边角向内滑动也可以唤醒 Google Assistant / Gmini，而 Flyme 故意保留了这一行为，并且不和 Aicy 冲突。询问工程师得知，长按电源键唤醒 Aicy 是上层要求，保留从屏幕边角向内滑动是自己也要用。另外，还需要注意，如此操作后，电源菜单是不会出现的，再长按只会直接重启，猜测国内版系统直接交由 Aicy 触发电源菜单了，敬请读者注意。
+
+<div class="grid grid-cols-2 gap-5">
+    <ClickableImage id="assistant1" src={assistant1} un-lg="w-lg m-auto" />
+    <ClickableImage id="assistant2" src={assistant2} un-lg="w-lg m-auto" />
+    <ClickableImage id="assistant3" src={assistant3} un-lg="w-lg m-auto" />
+    <ClickableImage id="assistant4" src={assistant4} un-lg="w-lg m-auto" />
+</div>
+
+## FCM & 后台留存
+
+部署完 Google 服务之后，随即通过拨号界面 `*#*#426#*#*` 来检查 FCM 状态。会发现基本上 FCM 服务本身是没有问题的，但被推送到的目标应用会无响应，而 FCM 依赖唤醒被推送应用实现通知发送。由于国产系统一贯执行的「划卡即停」策略，导致不在白名单上的 APP 只要被划出后台，就会进入 force-stop 状态，这类应用是无法被其他应用唤醒的，再者 Flyme 也默认限制了应用相互唤醒策略，导致 FCM 不可用。所以我们需要达到以下两个目标：1) 更改 Flyme 相互唤醒限制策略、2) 指定应用不进入「划卡即停」状态。
+
+第一个目标很好达成，基本上只需要用户在桌面，长按目标应用图标，点击应用信息-耗电与后台-手动管理，并勾选允许自启动、允许关联启动、允许后台运行即可。
+
+第二个目标则有点复杂，Flyme 表面上没有任何地方让我们手动添加白名单应用，除了在后台长按加锁可以避免被系统杀掉，但是这不够优雅。熟悉 Android 的用户应该知道，当前 Android 的最近任务界面其实是由桌面来管理的，所以我们首先反编译查看系统桌面，果然有个东西在 `com.meizu.flyme.launcher.quickstep.TaskKillAlgorithm`。
+
+具体来讲，系统首先会判断 CTS 测试是否在运行，如果在运行就不杀后台，如果不在运行则会调用 `TaskKillAlgorithm` 判断是否需要杀后台<sup>[1](#fcm1)</sup>，而在 `TaskKillAlgorithm` 中，定义了一系列白名单应用列表和特殊应用列表，其中有 `sOnlineWhiteList` 是从远端获取并拼接的，它所在的方法定义了一个 Receiver，并接收 `com.meizu.safe.ACTION_RAM_DATA_CHANGE` 的信息，将其写入列表<sup>[2](#fcm2)</sup>。
+
+注意到，其他白名单和特殊应用列表都是写死的，并没有让我们操作的机会，而 `initWhiteList()` 留下的调试代码中出现了 `user-exclude` 的字样，猜测这可能是一个突破点，于是继续向上寻找 `com.meizu.safe` 这个包的代码。
+
+在系统安全这里，可以看到在 `com.meizu.safe.RubbishCleanService` 处有一个相应的广播发送，虽然 `white_list` 中并没有任何内容，看起来已经被废弃了，但 `exclude` 列表调用了三个函数来拼齐<sup>[3](#fcm3)</sup>，遂一个个查看。
+
+在 `qt2`，是一个真正从云端获取白名单列表再拼凑一些本地白名单包名的过程<sup>[4](#fcm4)</sup>，具体来讲，会先从 [/pack/pack.conf](https://safe-apk.mzres.com/pack/pack.conf) 获取最新的云端白名单地址，再去下载白名单，比如 [update.db_1737648005_full.zip](https://safe-apk.mzres.com/pack/ramcleaner/whitelist/update.db_1737648005_full.zip)。解压得到的 .db 文件并不是数据库文件，而是纯文本。
+
+在 `ef3`，会读一个数据库表 `smart_background`<sup>[5](#fcm5)</sup>，这个表可以在 `com.meizu.safe.permission.AutoStartActivity` 被控制，而这个 Activity 又是导出的，到此，我们的目的就实现了。
+
+所以，为了实现第二个目标，可以去 Play 商店随便找一个[快捷方式启动器](https://play.google.com/store/apps/details?id=rk.android.app.shortcutmaker)，并打开这个 Activity，将目标应用设置为允许自启即可。所有操作完成后，记得强制停止一下系统桌面并重新启动，修改才会生效。
+
+题外话，发现了系统安全这个包里有彩蛋，多次点击首页的大图标即可进入彩蛋之一，打开 `TestTrafficBackgrdActivity` 并多次点击前三个项目可以进入另外三个彩蛋，另有其他的彩蛋似乎没法以用户态的身份进去<sup>[6](#fcm6)</sup>。
+
+<div class="grid grid-cols-2 gap-5">
+    <ClickableImage id="fcm1" src={fcm1} un-lg="w-lg m-auto" />
+    <ClickableImage id="fcm2" src={fcm2} un-lg="w-lg m-auto" />
+    <ClickableImage id="fcm3" src={fcm3} un-lg="w-lg m-auto" />
+    <ClickableImage id="fcm4" src={fcm4} un-lg="w-lg m-auto" />
+    <ClickableImage id="fcm5" src={fcm5} un-lg="w-lg m-auto" />
+    <ClickableImage id="fcm6" src={fcm6} un-lg="w-lg m-auto" />
+</div>
+
+## 应用多开
+
+Flyme 系统提供了应用多开的功能，但是当我尝试多开云闪付的时候，没法在应用列表里找到目标应用，去魅族社区查找相应反馈，[一篇由工程师回复的帖子](https://www.meizu.cn/thread/22288214)表明了这是故意而为之，再加上这个模块写在设置里，猜想估计是云控，云控列表直接写在了设置存储里。果然，搜索相关关键字之后，是可以找到 `mz_app_clone_ignore_pkgs` 的，并且云闪付在这个列表里<sup>[1](#clone1)</sup>。
+
+在设置中可以找到这段代码位于 `com.meizu.settings.appclone.AppClonePkgsFetcher`<sup>[2](#clone2)</sup>，并且会在用户每次进入界面的时候从 [/service/appdivide/list](http://safe.meizu.com/service/appdivide/list) 重新拉取一遍列表<sup>[3](#clone3)</sup>。猜想是否可以手动将设置存储清空后进入，果然是可以的。
+
+但是又有新问题，下次再次进入这个界面时，系统会自动卸载位于 `mz_app_clone_ignore_pkgs` 里的 APP。此时可以注意到，系统只会检查 `mz_app_clone_enabled_pkgs` 的值并进行匹配，而不会去检查 PackageManager<sup>[4](#clone4)</sup>，而这个值又是用户态可修改的，这给了我们很好的利用机会，只需要在多开之后手动将多开应用的包名删去即可。
+
+通过以上探索，可以获得如下操作步骤，以云闪付举例，首先将云控黑名单清空 `settings put secure mz_app_clone_ignore_pkgs ""`，断网进入应用多开界面，多开云闪付，然后将系统记录的多开应用包名删掉 `settings put secure mz_app_clone_enabled_pkgs ...你其他的多开应用` 即可。需要注意的是，经过这些操作，多开的应用本身已经是「游离态」的，在以后应用更新时可能不会被一并更新，需要手动操作。
+
+<div class="grid grid-cols-2 gap-5">
+    <ClickableImage id="clone1" src={clone1} un-lg="w-lg m-auto" />
+    <ClickableImage id="clone2" src={clone2} un-lg="w-lg m-auto" />
+    <ClickableImage id="clone3" src={clone3} un-lg="w-lg m-auto" />
+    <ClickableImage id="clone4" src={clone4} un-lg="w-lg m-auto" />
+</div>
+
+## 后记
+
+经过这些调教之后，Flyme 已经更加接近了原生 Android 的使用习惯，并且可以正常接收 FCM 通知。虽然还有更多的事情需要去做，比如通知栏图标不能隐藏、不支持原生通知图标、没有 Nearby Share 之类，但也是达到了基本可用的状态。
+
+对国产 ROM 最大的感悟就是，不要替用户做决定，比如应用多开，完全可以在用户尝试多开云闪付时提示此款应用未经过测试，不保证正常运行，而不是直接一刀切。希望有国产手机厂商的工程师读到这篇文章可以思考一下，少为用户做一点决定。
