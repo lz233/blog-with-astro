@@ -17,6 +17,10 @@ import fcm3 from './from-vanilla-android-to-flyme/fcm3.webp';
 import fcm4 from './from-vanilla-android-to-flyme/fcm4.webp';
 import fcm5 from './from-vanilla-android-to-flyme/fcm5.webp';
 import fcm6 from './from-vanilla-android-to-flyme/fcm6.webp';
+import tile1 from './from-vanilla-android-to-flyme/tile1.webp';
+import developer1 from './from-vanilla-android-to-flyme/developer1.webp';
+import developer2 from './from-vanilla-android-to-flyme/developer2.webp';
+import chooser1 from './from-vanilla-android-to-flyme/chooser1.webp';
 import clone1 from './from-vanilla-android-to-flyme/clone1.webp';
 import clone2 from './from-vanilla-android-to-flyme/clone2.webp';
 import clone3 from './from-vanilla-android-to-flyme/clone3.webp';
@@ -39,7 +43,7 @@ import clone4 from './from-vanilla-android-to-flyme/clone4.webp';
 
 这似乎成为了一个无解题。这时候魅族 21 Pro 进入了我的目光，它拥有三星亦或 Xperia 的硬朗外观、21:9 屏幕比例、和国产系统主流审美不同的 Flyme、解锁不会「熔断」的预期行为，再叠加上魅族 2024 年没有跟进其他厂发布新机，看起来快要绝种，「现在如果不是从云煤油成为煤油的最好时机，那可能就没有以后了」，我如是说道。
 
-作为一个从来都只用原生 Android （以下简称 Android）的用户来说，国产系统其实是比较有陌生感的，于是本篇的主题就是带读者找出这个时点下 Flyme 和 Android 的行为差异，并通过反编译观察代码逻辑找到可能的修正方法。
+作为一个从来都只用原生 Android （以下简称 Android）的用户来说，国产系统其实是比较有陌生感的，于是本篇的主题就是带读者找出这个时点下 Flyme 和 Android 的行为差异，并在不解锁设备的前提下，通过反编译观察代码逻辑找到可能的修正方法。
 
 ## GMS & Play Store
 
@@ -101,6 +105,43 @@ Flyme 在设置中就提供了开启 Google 服务的开关，开启之后手动
 题外话，发现了系统安全这个包里有彩蛋，多次点击首页的大图标即可进入彩蛋之一，打开 `TestTrafficBackgrdActivity` 并多次点击前三个项目可以进入另外三个彩蛋，另有其他的彩蛋似乎没法以用户态的身份进去<sup>[6](#fcm6)</sup>。
 
 <ClickableImage id="fcm6" src={fcm6} un-lg="w-lg m-auto" />
+
+## 原生磁贴项目
+
+Flyme 隐藏了部分 AOSP 和 GMS 磁贴，手动添加即可，储存位置与 AOSP 相同。需要注意的是，即使添加了 Nearby Share 磁贴后，依旧不可用，因为 GMS 主动屏蔽了中国大陆地区设备使用此功能<sup>[1](#tile1)</sup>。
+
+- GMS 扫码器：`qr_code_scanner`
+- 设备控制：`controls`
+- 钱包：`wallet`
+- Nearby Share：`custom(com.google.android.gms/.nearby.sharing.SharingTileService)`
+
+执行 `settings put secure sysui_qs_tiles "$(settings get secure sysui_qs_tiles),YOUR_TILE"` 按需添加即可。
+
+<ClickableImage id="tile1" src={tile1} un-lg="w-xl m-auto" />
+
+## 开发者模式通知
+
+默认情况下，当用户更改了某些开发者选项时，Flyme 就会在通知栏显示图示通知<sup>[1](#developer1)</sup>，这种体验非常不好。
+
+好在，Flyme 并没有做绝，通过反编译查看设置代码可以发现，`display_developer_mode_notification` 储存了稍后会被还原的项目<sup>[2](#developer2)</sup>，手动删除这个值即可清除通知，即 `settings delete global display_developer_mode_notification`。
+
+<div class="grid grid-cols-2 gap-5">
+    <ClickableImage id="developer1" src={developer1} un-lg="w-lg m-auto" />
+    <ClickableImage id="developer2" src={developer2} un-lg="w-lg m-auto" />
+</div>
+## 原生分享框
+
+Android 的选择器 Activity 代码在 Framework 里。查找相关代码可以发现 Flyme 是通过 Hook 的方式来实现的，而不是直接修改其源码，并保留了原生样式。但是，从这里的逻辑看出，并没有能给用户进行操作的空间<sup>[1](#chooser1)</sup>，需要 APP [手动适配](https://github.com/lz233/Tarnhelm/commit/560963cfb77fb982fc544aa04952fde41d619d7e)：
+
+```kotlin
+startActivity(Intent.createChooser(Intent().apply {
+  ...
+}, null).apply {
+  putExtra("KEY_DISABLE_FLYME_CHOOSER", true) // add this
+})
+```
+
+<ClickableImage id="chooser1" src={chooser1} un-lg="w-lg m-auto" />
 
 ## 应用多开
 
