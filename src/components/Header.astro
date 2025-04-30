@@ -13,13 +13,13 @@ const { translate: t } = Astro.locals
 <header un-lg="grow-1 justify-between items-start" un-flex="~ col gap-2.5" class="text-center" {...attrs}>
   <hgroup
     un-hover:lg="bg-foreground color-background pt-3.75 pb-8.75 "
-    un-lg=" write-vertical-right items-start px-2.5 pb-12 b-l-2px b-l-foreground-solid text-left"
+    un-lg="write-vertical-right items-start px-2.5 pb-12 b-l-2px b-l-foreground-solid text-left"
     un-flex="~ col gap-2.5"
     class="cursor-pointer transition-[padding,background] duration-800 ease-in-out"
   >
     <a class="normal" href="/">
       <h3 class="text-5 font-extrabold font-serif">{author}</h3>
-      <h1 class="text-8 font-extrabold font-serif">{title}</h1>
+      <h1 id="site-title" class="text-8 font-extrabold font-serif tracking-widest text-transparent transition-background-color duration-800 ease-in-out">{title}</h1>
     </a>
   </hgroup>
 
@@ -44,3 +44,29 @@ const { translate: t } = Astro.locals
     </ul>-->
   </nav>
 </header>
+
+<style>
+#site-title {
+  background-color: var(--foreground-color);
+  mask: url(/fish-h.svg) no-repeat center;
+  mask-size: contain;
+  margin-block-start: 0.2em;
+  margin-block-end: 0.2em;
+}
+
+@screen lg {
+  #site-title {
+    mask: url(/fish-v.svg) no-repeat center!important;
+    mask-size: contain!important;
+    margin-block-start: 0!important;
+    margin-block-end: -0.2em!important;
+  }
+}
+
+#site-title::selection {
+  color: transparent;
+}
+hgroup:hover #site-title {
+  background-color: var(--background-color);
+}
+</style>
