@@ -23,7 +23,8 @@
     "astro-typst": "^0.8.2",
     "sharp": "^0.34.1",
     "typescript": "^5.8.3",
-    "vite": "^6.3.3"
+    "vite": "^6.3.3",
+    "yarn": "^4.5.3"
   },
   "devDependencies": {
     "@iconify-json/academicons": "^1.2.2",
@@ -39,5 +40,5 @@
     "sanitize-html": "^2.16.0",
     "unocss": "^66.0.0"
   },
-  "packageManager": "yarn@4.5.3"
+  "packageManager": "yarn@4.9.1"
 }
