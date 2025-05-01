@@ -13,17 +13,19 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/mdx": "^4.2.5",
+    "@astrojs/mdx": "4.2.6",
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.3.1",
     "@myriaddreamin/typst-ts-node-compiler": "^0.6.0-rc2",
-    "astro": "^5.7.9",
+    "astro": "5.7.10",
     "astro-robots-txt": "^1.0.0",
     "astro-seo": "^0.8.4",
     "astro-typst": "^0.8.2",
+    "esbuild": "^0.25.3",
     "sharp": "^0.34.1",
     "typescript": "^5.8.3",
-    "vite": "^6.3.3"
+    "vite": "^6.3.3",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@iconify-json/academicons": "^1.2.2",
@@ -39,5 +41,5 @@
     "sanitize-html": "^2.16.0",
     "unocss": "^66.0.0"
   },
-  "packageManager": "yarn@4.9.1"
+  "packageManager": "yarn@4.5.3"
 }
