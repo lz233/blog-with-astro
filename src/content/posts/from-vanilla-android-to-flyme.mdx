@@ -18,6 +18,7 @@ import fcm4 from './from-vanilla-android-to-flyme/fcm4.webp';
 import fcm5 from './from-vanilla-android-to-flyme/fcm5.webp';
 import fcm6 from './from-vanilla-android-to-flyme/fcm6.webp';
 import tile1 from './from-vanilla-android-to-flyme/tile1.webp';
+import appDetail1 from './from-vanilla-android-to-flyme/app_detail1.webp';
 import developer1 from './from-vanilla-android-to-flyme/developer1.webp';
 import developer2 from './from-vanilla-android-to-flyme/developer2.webp';
 import chooser1 from './from-vanilla-android-to-flyme/chooser1.webp';
@@ -119,6 +120,12 @@ Flyme 隐藏了部分 AOSP 和 GMS 磁贴，手动添加即可，储存位置与
 
 <ClickableImage id="tile1" src={tile1} un-lg="w-xl m-auto" />
 
+## 原生应用详情界面
+
+Google 在 Android 14 中对设置的部分界面使用 Compose 进行了重写，其中包含了应用详情界面，而 Flyme 的设置是直接从原生改过来的，只是手动屏蔽了这个 Flag<sup>[1](#appDetail1)</sup>。根据 AOSP 里相关的[代码注释](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/util/FeatureFlagUtils.java#254)，可以注意到 `Settings.Global` 中的 Flag 是优先级最高的，覆写即可：`settings put global settings_enable_spa true`。
+
+<ClickableImage id="appDetail1" src={appDetail1} un-lg="w-xl m-auto" />
+
 ## 开发者模式通知
 
 默认情况下，当用户更改了某些开发者选项时，Flyme 就会在通知栏显示图示通知<sup>[1](#developer1)</sup>，这种体验非常不好。
@@ -129,6 +136,7 @@ Flyme 隐藏了部分 AOSP 和 GMS 磁贴，手动添加即可，储存位置与
     <ClickableImage id="developer1" src={developer1} un-lg="w-lg m-auto" />
     <ClickableImage id="developer2" src={developer2} un-lg="w-lg m-auto" />
 </div>
+
 ## 原生分享框
 
 Android 的选择器 Activity 代码在 Framework 里。查找相关代码可以发现 Flyme 是通过 Hook 的方式来实现的，而不是直接修改其源码，并保留了原生样式。但是，从这里的逻辑看出，并没有能给用户进行操作的空间<sup>[1](#chooser1)</sup>，需要 APP [手动适配](https://github.com/lz233/Tarnhelm/commit/560963cfb77fb982fc544aa04952fde41d619d7e)：
