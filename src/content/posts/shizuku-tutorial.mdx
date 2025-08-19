@@ -1,0 +1,353 @@
+---
+title: 与系统交互的魔法：Shizuku 开发简明教程与实践
+pubDate: 2025-08-17 18:01:01
+description: "Shizuku 是一个强大的工具，可以让你轻松地与 Android 系统进行交互。本文将为你提供一个简明的教程，帮助你快速上手 Shizuku。"
+categories: [笔记, Android]
+---
+import ClickableImage from '~/components/ClickableImage.astro';
+import binder from './shizuku-tutorial/binder.svg';
+import lifecycle from './shizuku-tutorial/lifecycle.svg';
+import module from './shizuku-tutorial/module.svg';
+import demo from './shizuku-tutorial/demo.webp';
+
+> 此文亦有内网版本：[点击查看]()
+
+在平常进行 Android 开发的时候，我们的应用会受到许多限制，比如无法直接访问 `android/data` 目录，无法在后台监听剪切板变化等。除了让我们自身成为特权应用（System/Root）之外，是否存在一种统一的方式，让普通应用与系统拥有「平等对话」的权利呢？Shizuku 就是这样一个工具，简单的来说，它通过提供一个与系统服务的桥梁，使得普通应用能够以特权应用的身份与系统进行交互。
+
+本文将为你提供一个简明的教程，帮助你快速上手 Shizuku 开发。我们将从 Shizuku 的工作原理开始，逐步深入并完成一个 Demo。
+
+## 原理
+
+### Binder
+
+Binder 是 Android 中用于进程间通信（IPC）的机制。它允许不同的应用程序和系统服务之间进行高效的通信。在 Shizuku 中，Binder 被用作桥梁，使得普通应用能够通过 Shizuku 代理与系统服务进行交互。
+
+一般来说，我们调用系统的 API 时，就是在通过 IPC 调用系统的服务，比如说 `PackageManager` 对应着 `PackageManagerService`。系统服务会在 Binder 中注册自己，提供一个接口供客户端调用，并在执行相应操作时对客户端进行鉴权。通过 Shizuku 启动的一项带特权的进程进行 Binder 转发，普通应用便能够以特权应用的身份与系统进行交互。<sup>[1]</sup>
+
+<ClickableImage src={binder} un-lg="w-lg m-auto" />
+
+### Root 与 Shell，不同的 UID
+
+那么，Shizuku 是如何启动一项带特权的进程的，而系统又是如何区分不同的调用者的呢？
+
+与 Linux 不同，在 Android 中，UID 被用来标识不同的应用程序，普通应用的 UID 通常是一个大于 10000 的整数，而系统则遵循一类预先定义的 UID 列表，在 `system/core/include/private/android_filesystem_config.h` 中。<sup>[2]</sup>其中，我们需要关注到 Root 和 Shell 这两个特殊的 UID，分别是 0 和 2000。Root 即是 Linux 意义上的超级用户，而 Shell 就比较特殊，它有一个单独的包 `com.android.shell`，我们通过 `adb shell` 打开的终端最终都会转发给它。
+
+具有 Root 权限的系统可以经由 Shizuku 直接启动一个带特权的进程（UID: 0），而没有 Root 权限的系统则需要用户在 adb 终端中手动启用 Shizuku 服务（UID: 2000），这就是 Shizuku 的两种不同工作模式。这项服务并不是一个传统意义上的 `app_process`，而是一个由 `app_process` 启动的 Java 进程，它会在启动时注册一个 Binder 服务，并监听来自普通应用的请求。
+
+以 Root 启动的进程几乎没有任何限制，而通过 Shell 启动的进程则会受到 Android 的权限限制。[这个 Manifest](https://cs.android.com/android/platform/superproject/+/main:frameworks/base/packages/Shell/AndroidManifest.xml) 列举了 Shell 的所有权限，如果你想进行的操作不在其中，就无法用 Shell 达成。
+
+除了 Android 的权限限制，AOSP 还会通过简单检查调用者的 UID 来判断是否允许访问某些系统服务。比如 `AppOpsService` 中的 `verifyAndGetBypass` 方法就会根据调用者的 UID 来决定是否允许其绕过某些权限检查。<sup>[3]</sup>而如果我们能用 ROOT_UID （0）或 SHELL_UID （2000）来调用这个方法，那么就可以绕过这些限制。
+
+```java
+private @NonNull PackageVerificationResult verifyAndGetBypass(int uid, String packageName,
+            @Nullable String attributionTag, @Nullable String proxyPackageName,
+            boolean suppressErrorLogs) {
+        if (uid == Process.ROOT_UID) {
+            // For backwards compatibility, don't check package name for root UID.
+            return new PackageVerificationResult(null,
+                    /* isAttributionTagValid */ true);
+        }
+        ...
+    }
+```
+
+## 调用方式
+
+### 权限请求与生命周期
+
+Shizuku 的权限模型与 Android 的权限模型类似，但又有所不同。它提供了一套与 Android 权限请求相似的机制和 API，但通过 Shizuku 进行管理。特别注意，由于 Shizuku 并不是系统的一部分，所以必然不可能永远存活，需要在请求权限前显式检查其是否处于运行状态，否则会 crash。
+
+<ClickableImage src={lifecycle} un-lg="w-xl m-auto" />
+
+根据上面的生命周期示意图，我们可以看到 Shizuku 的权限请求流程大致如下：
+
+1. 应用在需要使用 Shizuku 功能时，首先检查 Shizuku 服务是否存活。
+2. 如果 Shizuku 服务未存活，应用需要引导用户启动 Shizuku 服务。
+3. 如果 Shizuku 服务已存活，再去请求权限。
+4. 用户同意授权后，Shizuku 会将权限结果回调给应用。
+
+```kotlin
+private val shizukuPermissionCallback = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
+    if (grantResult == PackageManager.PERMISSION_GRANTED) {
+        binding.permissionStatusTextView.text = "授权状态：用户同意了 Shizuku 授权请求"
+    } else {
+        binding.permissionStatusTextView.text = "授权状态：用户拒绝了 Shizuku 授权请求"
+    }
+}
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    Shizuku.addRequestPermissionResultListener(shizukuPermissionCallback)
+}
+override fun onDestroy() {
+    super.onDestroy()
+    Shizuku.removeRequestPermissionResultListener(shizukuPermissionCallback)
+}
+private fun checkShizukuPermission(newRequest: Boolean = false): Boolean = if (!Shizuku.pingBinder()) {
+    binding.permissionStatusTextView.text = "授权状态：Shizuku 服务未存活"
+    false
+} else if (Shizuku.isPreV11()) {
+    binding.permissionStatusTextView.text = "授权状态：Shizuku 版本过低 （< 11）"
+    false
+} else if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+    binding.permissionStatusTextView.text = "授权状态：Shizuku 已授权"
+    true
+} else if (Shizuku.shouldShowRequestPermissionRationale()) {
+    binding.permissionStatusTextView.text = "授权状态：Shizuku 未授权，且不应再次请求，向用户解释原因"
+    false
+} else if (newRequest) {
+    binding.permissionStatusTextView.text = "授权状态：Shizuku 未授权，正在请求授权"
+    Shizuku.requestPermission(233)
+    false
+} else {
+    binding.permissionStatusTextView.text = "授权状态：Shizuku 未授权，未知原因"
+    false
+}
+```
+
+### Remote binder call
+
+在完成权限处理之后，我们就可以正式调用 Shizuku 了。Shizuku 提供了两种调用方式：Remote binder call 和 User service。顾名思义，Remote binder call 就是通过 Shizuku 的代理拿到系统服务的 Binder 后远程进行调用。他的优点在于开发快捷，调用方式简单。
+
+```java
+private static final Singleton<IPackageManager> PACKAGE_MANAGER = new Singleton<IPackageManager>() {
+    @Override
+    protected IPackageManager create() {
+        return IPackageManager.Stub.asInterface(new ShizukuBinderWrapper(SystemServiceHelper.getSystemService("package")));
+    }
+};
+```
+
+注意到，通过这种方式，我们拿到的是 Binder 对象，而不是平常直接通过 `context.getSystemService()` 获取的 Manager 对象。我们可能需要通过反射来实例化 Manager。<sup>[4]</sup>
+
+```java
+PackageInstaller.class.getConstructor(IPackageInstaller.class, String.class, String.class, int.class).newInstance(installer, installerPackageName, installerAttributionTag, userId);
+```
+
+### User service
+
+User service 则会让 Shizuku 帮你运行一个特权服务。这种方式的自由度更高，业务无需手动通过 Binder 去构造出 Manager 对象，因为整个服务都是在 Root 或者 Shell 状态下运行的。但需要注意的是，由于这不是一个标准的 Android 服务，本质上它是一个由 Shizuku 启动的 Java 进程，所以一些与 Context 有关的操作会无法进行。并且，由于这个服务并不在我们的应用进程中，因此无法直接访问应用的资源和组件，需要通过 IPC 进行通信。
+
+```java
+interface IClipboardShizukuService {
+    void destroy() = 16777114; // Destroy method defined by Shizuku server
+    void exit() = 1; // Exit method defined by user
+    void start() = 2;
+    void addCallback(ShizukuCallback callback) = 3;
+}
+```
+
+为了达成 User service 与应用本体之间的通信，我们需要使用 AIDL（Android Interface Definition Language）来定义一个接口。这个接口将用于在 User service 和应用之间传递数据和调用方法。在这当中，`void destroy() = 16777114;` 是一个由 Shizuku 定义的特殊方法，他会在用户执行 `unbindUserService` 的时候被调用。
+
+```kotlin
+private val userServiceArgs = Shizuku.UserServiceArgs(ComponentName(BuildConfig.APPLICATION_ID, ClipboardShizukuService::class.java.name))
+        .daemon(false)
+        .processNameSuffix("clipboard-shizuku")
+        .debuggable(BuildConfig.DEBUG)
+        .version(BuildConfig.VERSION_CODE)
+private val userServiceConnection = object : ServiceConnection {
+    override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+        if (binder != null && binder.pingBinder()) {
+        }
+    }
+    override fun onServiceDisconnected(name: ComponentName?) {
+    }
+}
+Shizuku.bindUserService(userServiceArgs, userServiceConnection)
+Shizuku.unbindUserService(userServiceArgs, userServiceConnection, true)
+```
+
+Shizuku 需要使用 userServiceArgs 和 userServiceConnection 这两个参数来绑定用户服务。userServiceArgs 定义了服务的组件名、是否为守护进程、进程名后缀、是否可调试以及版本号等信息，而 userServiceConnection 则是一个 ServiceConnection 对象，用于处理服务连接和断开连接的回调，你可以在这里拿到 User service 的 Binder 对象，并处理它与应用本体的回调。
+
+### 绕过 Android SDK Hidden API 限制
+
+在使用 Shizuku 调用系统 API 的时候，我们可能会遇到一些 Hidden API 的限制，其中，这又分成了两类限制：编译时限制和运行时限制。
+
+编译时限制是指 Android SDK 中的一些被标记为 Hidden 的 API，这意味着它们在编译时不可见，无法直接使用。这种情况下，除了使用反射来访问这些 API，我们还可以使用 [HiddenApiRefinePlugin](https://github.com/RikkaApps/HiddenApiRefinePlugin) 来绕过限制，方便我们的开发。
+
+在定义侧，我们可以使用诸如 `@RefineAs(PackageManager.class)` 的注释，并将其添加在 `PackageManagerHidden` 类上：
+
+```java
+@RefineAs(PackageManager.class)
+public class PackageManagerHidden {
+    public interface OnPermissionsChangedListener {
+        void onPermissionsChanged(int uid);
+    }
+
+    public void addOnPermissionsChangeListener(OnPermissionsChangedListener listener) {
+        throw new RuntimeException("Stub!");
+    }
+    public void removeOnPermissionsChangeListener(OnPermissionsChangedListener listener) {
+        throw new RuntimeException("Stub!");
+    }
+}
+```
+
+在使用侧，我们可以使用 `unsafeCast` 方法将其转换为实际的 `PackageManager` 对象：
+
+```java
+Refine.<PackageManagerHidden>unsafeCast(context.getPackageManager())
+    .addOnPermissionsChangeListener(new PackageManagerHidden.OnPermissionsChangedListener() {
+    @Override
+    public void onPermissionsChanged(int uid) {
+                     // do staff
+    }
+});
+```
+
+`unsafeCast` 方法会在编译阶段被移除或内联，这样，最后的代码就和我们直接调用 Hidden API 别无两样了。
+
+对于 Remote binder call 的调用方式，还会存在运行时限制，因为其调用在我们应用进程中进行，而从 Android 9 开始，Google 就限制了普通应用对非 SDK 接口的访问。<sup>[5]</sup>要绕过这些限制，可以使用 [AndroidHiddenApiBypass](https://github.com/LSPosed/AndroidHiddenApiBypass)：
+
+```kotlin
+HiddenApiBypass.addHiddenApiExemptions("Landroid/app")
+```
+
+以上表示绕过 `android/app` 这个包名下的所有 Hidden API 的限制。
+
+## 开始动手吧！实现一个剪切板监听 Demo！
+
+在掌握了 Shizuku 的基本用法后，我们可以开始动手实现一个简单的剪切板监听 Demo 了。这个 Demo 的效果很简单，能够在应用写入剪切板的时候发送通知，告知用户是哪个应用写入了什么内容。同时，这个 Demo 还正确实现了 Shizuku 的整个调用生命周期。
+
+Demo 代码已经放在了 [GitHub](https://github.com/lz233/ShizukuClipboardDemo)，建议打开代码仓库，配合阅读，本文仅做重点代码段展示。
+
+<ClickableImage src={demo} un-lg="w-lg m-auto" />
+
+### 整体框架
+
+根据上文的介绍，我们的应用应该分成三个模块，即应用本体、Hidden Api Stub 和 Shizuku User Service，Hidden Api Stub 为 Shizuku User Service 提供了 Android API 调用基础，而 Shizuku User Service 中定义的接口则用于和应用本体之间进行通信。
+
+<ClickableImage src={module} un-lg="w-lg m-auto" />
+
+### 实现一个 Hidden Api Stub
+
+Hidden Api Stub 模块的作用是提供一些 Android API 的调用基础，方便 Shizuku User Service 进行调用。我们可以使用 HiddenApiRefinePlugin 来实现这一点。在这里，我们需要实现 `AppOpsManager` 的相关接口，而由于最后我们并不实际调用这个类，所以方法内容保持空即可。由于这些都并非公开的 API，可能会随着 Android 版本变化而变化，因此建议读者亲自去 [cs.android.com](https://cs.android.com) 上查阅不同 Android 版本的实现，并添加到模块当中。
+
+```java
+@RefineAs(AppOpsManager.class)
+public class AppOpsManagerHidden {
+    public void startWatchingNoted(int[] ops, OnOpNotedListener listener) {
+        throw new RuntimeException("Stub!");
+    }
+    public void stopWatchingNoted(OnOpNotedListener listener) {
+        throw new RuntimeException("Stub!");
+    }
+    public void setMode(String op, int uid, String packageName, int mode) {
+        throw new RuntimeException("Stub!");
+    }
+    public interface OnOpNotedListener {
+        void onOpNoted(String op, int uid, String packageName, String attributionTag, int flags, int result);
+        default void onOpNoted(String op, int uid, String packageName, String attributionTag, int virtualDeviceId, int flags, int result) {
+        }
+    }
+}
+```
+
+### 实现一个 User service
+
+读者可能想问，系统的 ClipboardManager 已经提供了 `addPrimaryClipChangedListener` 回调，为何还要自己实现呢？实际上，从 Android 10 开始，Google 就限制了普通应用对剪切板的监听，除非你的应用是默认输入法应用或者在前台，这个回调才有效。<sup>[6]</sup>
+
+与此同时，Android 中还存在一套名为 AppOps 的行为管理机制，与部分权限管理机制重合，比如 `OP_CAMERA` 对应了相机权限，而 `OP_WRITE_CLIPBOARD` 对应了写入剪切板的操作，没有与之相对应的权限。<sup>[7]</sup>我们可以利用 `AppOpsManager` 中的 `startWatchingNoted` 方法来监听响应的应用操作，并在发生相应动作的时候收到回调，还可以使用 `setMode` 来直接改变应用的行为。
+
+```kotlin
+@Keep
+class ClipboardShizukuService(private val context: Context) : IClipboardShizukuService.Stub() {
+    ...
+    override fun start() {
+        HiddenApiBypass.addHiddenApiExemptions("Landroid/app")
+        appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        packageManager = context.packageManager
+        // DO NOT convert it to lambda due to R8 will break it down
+        opNotedListener = object : AppOpsManagerHidden.OnOpNotedListener {
+            override fun onOpNoted(op: String?, uid: Int, packageName: String?, attributionTag: String?, flags: Int, result: Int) {
+                shizukuCallback.onOpNoted(op, uid, packageName, attributionTag, flags, result)
+            }
+        }
+        // Allow self to draw floating window
+        Refine.unsafeCast<AppOpsManagerHidden>(appOpsManager)
+            .setMode(
+                AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
+                packageManager.getPackageUid(BuildConfig.APPLICATION_ID, 0),
+                BuildConfig.APPLICATION_ID,
+                AppOpsManager.MODE_ALLOWED
+            )
+        // Register AppOps Note listener
+        Refine.unsafeCast<AppOpsManagerHidden>(appOpsManager)
+            .startWatchingNoted(intArrayOf(30), opNotedListener)
+    }
+    override fun addCallback(shizukuCallback: ShizukuCallback) {
+        this.shizukuCallback = shizukuCallback
+    }
+}
+```
+
+敬请注意，这并不是一个标准的 Android service，和传统方式不同，我们只是在继承 AIDL 的 `.Stub()` 接口。并且，由于这段代码在我们的应用本体实际上并没有被直接调用，在编译时可能会被 R8 优化掉，因此需要使用 `@Keep` 注解来确保它不会被删除。建议在编译出包之后通过 [jadx](https://github.com/skylot/jadx) 进行反编译，检查最终的代码是否符合预期。
+
+这里我们还用了 `setMode` 方法为自身添加了悬浮窗的权限，这在后文获取剪切板内容的时候需要用到。如果不使用 Shizuku 的能力，而使用传统方式请求权限的话，需要让用户手动到系统设置中进行授权，非常繁琐，通过这种方式可以避免用户的手动操作。
+
+### 实现一个 Android service
+
+前文提到了 Android 10 对应用监听剪切板的限制，这其实同样限制了普通应用在后台读取剪切板的能力。在翻看 Android 源码之后，我们可以发现，Android 检测应用是否处于聚焦状态的方式是通过 `WindowManagerService` 中的 `isUidFocused` 方法来实现的，而这个方法只是一个简单的 for 循环，我们的应用只要在这段检测时间中有一个悬浮窗存在即可。
+
+```kotlin
+private fun magic(packageName: String = "?") {
+    // Another magic, create a floating view to ensure clipboard access
+    val handler = Handler(mainLooper)
+    handler.post {
+        val windowManager = getSystemService(WindowManager::class.java) as WindowManager
+        val view = View(applicationContext)
+        windowManager.addView(view, WindowManager.LayoutParams(-2, -2, 2038, 32, -3).apply {
+            x = 0
+            y = 0
+            width = 0
+            height = 0
+        })
+        doClipboard(packageName)
+        windowManager.removeView(view)
+    }
+}
+```
+
+除了能够正确读取剪切板内容之外，我们还需要在 Android service 中实现对 Shizuku user service 的绑定和解绑。这在上文亦有介绍。
+
+```kotlin
+private val userServiceConnection = object : ServiceConnection {
+    override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+        if (binder != null && binder.pingBinder()) {
+            val service = IClipboardShizukuService.Stub.asInterface(binder)
+            service.start()
+            service.addCallback(object : ShizukuCallback.Stub() {
+                override fun onOpNoted(op: String, uid: Int, packageName: String, attributionTag: String?, flags: Int, result: Int) {
+                    if (op == "android:write_clipboard" && packageName != BuildConfig.APPLICATION_ID) {
+                        magic(packageName)
+                    }
+                }
+            })
+            createNotification()
+        } else {
+            createNotification(content = "Shizuku 服务未存活或绑定失败")
+        }
+    }
+    override fun onServiceDisconnected(name: ComponentName?) {
+        createNotification(content = "Shizuku 服务未存活或绑定失败")
+    }
+}
+```
+
+通过在 Shizuku user service 中注册 `onOpNoted` 回调，并在 Android Service 中对传回的回调进行处理，过滤名为 `android:write_clipboard` 的操作，我们就实现对剪切板操作的监听和控制。
+
+## 结尾
+
+通过这篇文章，我们了解了如何在 Android 中使用 Shizuku 框架来以 Root 或 Shell 权限调用系统 API。本文章主要起到一个导览的作用，帮助开发者理解 Shizuku 的基本用法和实现原理，并忽略了诸如依赖配置等的工程化环节，希望读者能够根据 Ref 和官方文档进一步探索和实现自己的项目。
+
+行文匆忙，如有错误，还恳请请指出。
+
+## References
+
+1. https://github.com/RikkaApps/Shizuku?tab=readme-ov-file#how-does-shizuku-work
+2. https://android.googlesource.com/platform/system/core/+/master/libcutils/include/private/android_filesystem_config.h
+3. https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/appop/AppOpsService.java#4732
+4. https://github.com/RikkaApps/Shizuku-API/blob/a27f6e4151ba7b39965ca47edb2bf0aeed7102e5/demo/src/main/java/rikka/shizuku/demo/util/PackageInstallerUtils.java#L17
+5. https://developer.android.com/guide/app-compatibility/restrictions-non-sdk-interfaces
+6. https://developer.android.com/about/versions/10/privacy/changes#clipboard-data
+7. https://appops.rikka.app/zh-hans/guide/#%E4%BB%80%E4%B9%88%E6%98%AF-android-%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84-appops
+8. https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/wm/WindowManagerService.java#8282
