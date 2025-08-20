@@ -10,7 +10,7 @@ import lifecycle from './shizuku-tutorial/lifecycle.svg';
 import module from './shizuku-tutorial/module.svg';
 import demo from './shizuku-tutorial/demo.webp';
 
-> 此文亦有内网版本：[点击查看]()
+> 此文亦有内网版本，欢迎捧场：[点击查看](https://km.woa.com/articles/show/635502)。
 
 在平常进行 Android 开发的时候，我们的应用会受到许多限制，比如无法直接访问 `android/data` 目录，无法在后台监听剪切板变化等。除了让我们自身成为特权应用（System/Root）之外，是否存在一种统一的方式，让普通应用与系统拥有「平等对话」的权利呢？Shizuku 就是这样一个工具，简单的来说，它通过提供一个与系统服务的桥梁，使得普通应用能够以特权应用的身份与系统进行交互。
 
@@ -42,13 +42,13 @@ Binder 是 Android 中用于进程间通信（IPC）的机制。它允许不同�
 private @NonNull PackageVerificationResult verifyAndGetBypass(int uid, String packageName,
             @Nullable String attributionTag, @Nullable String proxyPackageName,
             boolean suppressErrorLogs) {
-        if (uid == Process.ROOT_UID) {
-            // For backwards compatibility, don't check package name for root UID.
-            return new PackageVerificationResult(null,
-                    /* isAttributionTagValid */ true);
-        }
-        ...
+    if (uid == Process.ROOT_UID) {
+        // For backwards compatibility, don't check package name for root UID.
+        return new PackageVerificationResult(null,
+                /* isAttributionTagValid */ true);
     }
+    ...
+}
 ```
 
 ## 调用方式
