@@ -94,7 +94,11 @@ a:hover.normal {
 
 a:has(img) {
   @apply border-b-none;
-  @apply transition-none;
+}
+
+.image-caption {
+  background-color: inherit;
+  color: inherit;
 }
 
 .heti code {

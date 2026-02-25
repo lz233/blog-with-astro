@@ -6,6 +6,7 @@ type Props = {
     src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
     href?: string;
     target?: string;
+    caption?: string;
     alt?: string;
     width?: number;
     height?: number;
@@ -13,7 +14,7 @@ type Props = {
     "un-lg"?: string;
 }
 
-let {id, src, href, target = "_blank", alt = "", width, height, inferSize = false, "un-lg": unlg } = Astro.props;
+let {id, src, href, target = "_blank", caption, alt = "", width, height, inferSize = false, "un-lg": unlg } = Astro.props;
 
 if (href == null) {
     if (typeof src === "string") {
@@ -27,10 +28,14 @@ if (href == null) {
     }
 }
 
+if (caption != null && alt === "") {
+    alt = caption;
+}
+
 typeof src === "string" && width == null && height == null ? inferSize = true : "";
 --- 
 
-<a id={id} href={href} target={target} >
+<a id={id} href={href} target={target} title={alt}>
     {
         typeof src === "string" ? (
             inferSize ? (
@@ -42,4 +47,5 @@ typeof src === "string" && width == null && height == null ? inferSize = true : 
             <Image un-lg={unlg} src={src} alt={alt} width={width} height={height}/>
         )
     }
+    {caption && <div class="image-caption" style="text-align: center">{caption}</div>}
 </a>
