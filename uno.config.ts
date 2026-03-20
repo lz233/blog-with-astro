@@ -6,7 +6,7 @@ import {
   presetWebFonts
 } from "unocss";
 import transformerDirectives from "@unocss/transformer-directives";
-import { THEME_CONFIG } from "./src/theme.config";
+import { THEME_CONFIG } from "./src/theme.config.ts";
 
 const {socials, themeStyle} = THEME_CONFIG;
 
@@ -27,10 +27,10 @@ export default defineConfig({
       warn: true,
       cdn: 'https://esm.sh/',
       collections: {
-        mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default),
-        mingcute: () => import('@iconify-json/mingcute/icons.json').then(i => i.default),
-        ri: () => import('@iconify-json/ri/icons.json').then(i => i.default),
-        academicons: () => import('@iconify-json/academicons/icons.json').then(i => i.default),
+        mdi: () => import('@iconify-json/mdi/icons.json', { assert: { type: 'json' } }).then(i => i.default),
+        mingcute: () => import('@iconify-json/mingcute/icons.json', { assert: { type: 'json' } }).then(i => i.default),
+        ri: () => import('@iconify-json/ri/icons.json', { assert: { type: 'json' } }).then(i => i.default),
+        academicons: () => import('@iconify-json/academicons/icons.json', { assert: { type: 'json' } }).then(i => i.default),
       },
     }),
     presetWebFonts({
